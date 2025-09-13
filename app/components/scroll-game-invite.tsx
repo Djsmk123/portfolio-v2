@@ -71,7 +71,7 @@ export default function ScrollGameInvite({ onStartGame }: ScrollGameInviteProps)
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">Are you bored?</h3>
-                    <p className="text-sm text-muted-foreground">Let's play a game!</p>
+                    <p className="text-sm text-muted-foreground">Let&apos;s play a game!</p>
                   </div>
                 </div>
                 <Button

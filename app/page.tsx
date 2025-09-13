@@ -209,13 +209,9 @@ function ThoughtOfTheDay() {
 
   // TTS hook
   const {
-    text: ttsText,
     setText: setTtsText,
-    isSpeaking: ttsSpeaking,
-    isPaused: ttsPaused,
     speak: ttsSpeak,
     pause: ttsPause,
-    resume: ttsResume,
     cancel: ttsCancel,
   } = useSpeachSynthesisApi();
 
@@ -308,73 +304,6 @@ function ThoughtOfTheDay() {
 
 
 
-function SkillsShowcase() {
-  const skills = [
-    { label: "Flutter", hue: "from-sky-500/20 to-blue-500/20", ring: "ring-sky-400/50" },
-    { label: "Swift", hue: "from-orange-500/20 to-red-500/20", ring: "ring-orange-400/50" },
-    { label: "React Native", hue: "from-cyan-500/20 to-purple-500/20", ring: "ring-cyan-400/50" },
-    { label: "Next.js", hue: "from-zinc-500/20 to-slate-500/20", ring: "ring-zinc-400/50" },
-    { label: "TypeScript", hue: "from-blue-500/20 to-indigo-500/20", ring: "ring-blue-400/50" },
-    { label: "Tailwind", hue: "from-teal-500/20 to-emerald-500/20", ring: "ring-teal-400/50" },
-    { label: "Animations", hue: "from-fuchsia-500/20 to-pink-500/20", ring: "ring-fuchsia-400/50" },
-    { label: "Performance", hue: "from-lime-500/20 to-green-500/20", ring: "ring-lime-400/50" },
-  ];
-
-  return (
-    <Section id="skills">
-      <div className="space-y-6">
-        <LargeTitle>Developer Skills</LargeTitle>
-        <SmallTitle>Building delightful, scalable mobile experiences</SmallTitle>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border bg-background/50 backdrop-blur p-6 md:p-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {skills.map((skill) => (
-                <div
-                  key={skill.label}
-                  className={`relative overflow-hidden rounded-xl border ${skill.ring} ring-1 p-3 transition-all duration-300 hover:translate-y-[-2px] hover:shadow-md`}
-                >
-                  <div className={`absolute -inset-1 opacity-60 bg-gradient-to-br ${skill.hue}`} />
-                  <div className="relative z-10 font-medium">{skill.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border bg-background/50 backdrop-blur p-6 md:p-8 space-y-4">
-            <div>
-              <p className="text-muted-foreground">What I focus on</p>
-              <ul className="mt-2 list-disc pl-5 space-y-1 text-sm">
-                <li>Smooth animations and tactile interactions</li>
-                <li>Offline-first and resilient architectures</li>
-                <li>Fast startup times and low bundle sizes</li>
-                <li>Clean, testable, and readable code</li>
-              </ul>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {[
-                "State Machines",
-                "Design Systems",
-                "AOT/Tree-shaking",
-                "REST/GraphQL",
-                "CI/CD",
-                "Unit/UI Testing",
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center rounded-full border bg-muted/40 px-3 py-1 text-xs"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </Section>
-  );
-}
 
 
 function FloatingBubble({ label, delay }: { label: string; delay: number }) {

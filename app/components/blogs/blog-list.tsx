@@ -4,7 +4,7 @@ import { LargeTitle, SmallTitle } from "../section"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
-import { CalendarIcon, StarIcon, Heart, Award } from "lucide-react"
+import { CalendarIcon, Heart, Award } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
@@ -19,7 +19,7 @@ export default function BlogComponent({
         <div className="mx-auto max-w-4xl">
           <div className="space-y-2">
             <LargeTitle>Articles</LargeTitle>
-            <SmallTitle>What I've been writing</SmallTitle>
+            <SmallTitle>What I&apos;ve been writing</SmallTitle>
           </div>
           <ul className="mt-8 grid gap-4">
             <BlogList/>
@@ -30,7 +30,7 @@ export default function BlogComponent({
       <>
         <div className="space-y-2">
           <LargeTitle>Articles</LargeTitle>
-          <SmallTitle>What I've been writing</SmallTitle>
+          <SmallTitle>What I&apos;ve been writing</SmallTitle>
           <BlogList limit={3} />
         </div>
         <div className="mt-6">
@@ -124,7 +124,7 @@ export function BlogList({ limit }: { limit?: number }) {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Click to read "{p.title}"</p>
+                  <p>Click to read &quot;{p.title}&quot;</p>
                 </TooltipContent>
               </Tooltip>
             </motion.li>

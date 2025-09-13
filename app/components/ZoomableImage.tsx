@@ -24,7 +24,7 @@ export default function ZoomableImage({
           height={300}
         />
       </DialogTrigger>
-      <DialogContent className="w-full max-w-full sm:max-w-7xl border-0 bg-transparent p-0 sm:p-4">
+      <DialogContent className="w-full max-w-full sm:max-w-7xl border-0 bg-transparent p-0 sm:p-4" showCloseButton={false}>
         <DialogTitle className="sr-only">Image preview</DialogTitle>
         <div className="relative w-full max-h-[90vh] overflow-hidden rounded-md bg-black">
           <Image

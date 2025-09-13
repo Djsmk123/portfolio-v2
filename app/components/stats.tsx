@@ -1,8 +1,8 @@
 "use client"
 
 import { profileStats } from "@/app/data/mock"
-import { motion, useAnimation } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { motion } from "framer-motion"
+import { useEffect, useState } from "react"
 import { 
   Code2, FileText, GitCommit, Eye, Star, Calendar, Users, Terminal 
 } from "lucide-react"
@@ -79,7 +79,7 @@ function useCountUp(end: number, duration = 1.2) {
   const [count, setCount] = useState(0)
   useEffect(() => {
     let start = 0
-    const step = (timestamp: number) => {
+    const step = () => {
       start += 16 / (duration * 1000)
       const progress = Math.min(start, 1)
       setCount(Math.floor(progress * end))
@@ -88,6 +88,63 @@ function useCountUp(end: number, duration = 1.2) {
     requestAnimationFrame(step)
   }, [end, duration])
   return count
+}
+
+// StatItem component to properly use hooks
+function StatItem({ 
+  stat, 
+  Icon, 
+  endValue, 
+  item 
+}: { 
+  stat: typeof stats[0]
+  Icon: React.ComponentType<{ className?: string }>
+  endValue: number | undefined
+  item: { hidden: object; show: object }
+}) {
+  const count = useCountUp(endValue || 0)
+  const displayValue = endValue ? count : stat.value
+
+  return (
+    <motion.div
+      variants={{item}}
+      whileHover={{ scale: 1.08, rotateY: 3, rotateX: -3 }}
+      transition={{ type: 'spring', stiffness: 250, damping: 20 }}
+      className='group relative min-w-0'
+    >
+      <div className="flex flex-col items-center p-3 rounded-lg border bg-background/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:border-primary/40 w-full">
+        {/* Pulsing Icon */}
+        <motion.div
+          className={`p-3 rounded-full ${stat.bgColor} mb-2`}
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Icon className={`h-5 w-5 ${stat.color}`} />
+        </motion.div>
+
+        <div className="text-center w-full min-w-0">
+          <div className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+            {displayValue}
+          </div>
+          <div className="text-xs text-muted-foreground font-medium leading-tight mt-1 truncate w-full">
+            {stat.label}
+          </div>
+        </div>
+      </div>
+
+      {/* Tooltip */}
+      <motion.div
+        className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10"
+        initial={{ y: 10 }}
+        animate={{ y: 0 }}
+      >
+        <div className="bg-popover/90 text-popover-foreground text-xs px-3 py-1.5 rounded-md shadow-lg border whitespace-nowrap backdrop-blur-sm">
+          {stat.description}
+          <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-popover/90 border-r border-b" />
+        </div>
+      </motion.div>
+    </motion.div>
+  )
 }
 
 export default function Stats() {
@@ -119,48 +176,15 @@ export default function Stats() {
         const Icon = stat.icon
         const isNumber = !isNaN(Number(stat.value.toString().replace(/[^0-9]/g, "")))
         const endValue = isNumber ? parseInt(stat.value.toString()) : undefined
-        const count = endValue ? useCountUp(endValue) : stat.value
 
         return (
-          <motion.div
+          <StatItem
             key={stat.label}
-            variants={{item}}
-            whileHover={{ scale: 1.08, rotateY: 3, rotateX: -3 }}
-            transition={{ type: "spring", stiffness: 250, damping: 20 }}
-            className="group relative min-w-0"
-          >
-            <div className="flex flex-col items-center p-3 rounded-lg border bg-background/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:border-primary/40 w-full">
-              {/* Pulsing Icon */}
-              <motion.div
-                className={`p-3 rounded-full ${stat.bgColor} mb-2`}
-                animate={{ scale: [1, 1.15, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <Icon className={`h-5 w-5 ${stat.color}`} />
-              </motion.div>
-
-              <div className="text-center w-full min-w-0">
-                <div className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
-                  {endValue ? count : stat.value}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium leading-tight mt-1 truncate w-full">
-                  {stat.label}
-                </div>
-              </div>
-            </div>
-
-            {/* Tooltip */}
-            <motion.div
-              className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10"
-              initial={{ y: 10 }}
-              animate={{ y: 0 }}
-            >
-              <div className="bg-popover/90 text-popover-foreground text-xs px-3 py-1.5 rounded-md shadow-lg border whitespace-nowrap backdrop-blur-sm">
-                {stat.description}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-popover/90 border-r border-b" />
-              </div>
-            </motion.div>
-          </motion.div>
+            stat={stat}
+            Icon={Icon}
+            endValue={endValue}
+            item={item}
+          />
         )
       })}
     </motion.div>

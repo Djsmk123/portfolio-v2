@@ -81,8 +81,43 @@ export function InteractiveBg() {
     if (!ctx) return;
 
     let currentHeight = window.innerHeight;
-    let dots: any[] = [];
-    let floatingCode: any[] = [];
+    interface Dot {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      opacity: number;
+      pulseSpeed: number;
+      pulseOffset: number;
+      depth: number;
+    }
+
+    interface FloatingCode {
+      text: string;
+      x: number;
+      y: number;
+      baseX: number;
+      baseY: number;
+      vx: number;
+      vy: number;
+      opacity: number;
+      fontSize: number;
+      lang: string;
+      rotationSpeed: number;
+      rotation: number;
+      birthTime: number;
+      lifespan: number;
+      depth: number;
+      scrollInfluence: number;
+      driftRadiusX: number;
+      driftRadiusY: number;
+      driftSpeedX: number;
+      driftSpeedY: number;
+    }
+
+    let dots: Dot[] = [];
+    let floatingCode: FloatingCode[] = [];
 
     const getIsDarkMode = () =>
       document.documentElement.classList.contains("dark") ||

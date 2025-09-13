@@ -29,8 +29,8 @@ export default function ContactPage({
         className="space-y-6"
       >
         <div className="space-y-2">
-          <LargeTitle>Let's Work Together</LargeTitle>
-          <SmallTitle>Ready to bring your ideas to life? Let's discuss your project.</SmallTitle>
+          <LargeTitle>Let&apos;s Work Together</LargeTitle>
+          <SmallTitle>Ready to bring your ideas to life? Let&apos;s discuss your project.</SmallTitle>
         </div>
 
         {booked ? (
@@ -47,7 +47,7 @@ export default function ContactPage({
               Call Scheduled!
             </h3>
             <p className="text-green-700 dark:text-green-300 text-sm">
-              You'll be redirected to Calendly to confirm your meeting time.
+              You&apos;ll be redirected to Calendly to confirm your meeting time.
             </p>
           </motion.div>
         ) : (
@@ -95,7 +95,7 @@ export default function ContactPage({
             {/* Additional Info */}
             <div className="text-sm text-muted-foreground text-center">
               <p>Available Monday - Friday, 9 AM - 5 PM IST</p>
-              <p className="mt-1">We'll discuss your project requirements and next steps.</p>
+              <p className="mt-1">We&apos;ll discuss your project requirements and next steps.</p>
             </div>
           </motion.div>
         )}

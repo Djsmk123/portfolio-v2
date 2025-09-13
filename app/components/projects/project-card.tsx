@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { ExternalLinkIcon, GithubIcon, ZoomInIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { memo, useState } from "react";
 import ProjectBanner from "./project-banner";
 
@@ -48,14 +49,13 @@ const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
         </h3>
         {p.org && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <img
+            <Image
               src={p.org.logo}
               alt={p.org.name}
               className="h-5 w-5 rounded-full object-cover ring-1 ring-border"
               width={20}
               height={20}
               loading="lazy"
-              decoding="async"
             />
             <Link
               href={p.org.url}
@@ -140,14 +140,13 @@ const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
                 rel="noopener noreferrer"
                 aria-label={`${p.name} Playstore`}
               >
-                <img
+                <Image
                   src="/assets/google-play.png"
                   alt="Playstore"
                   className="mr-2 h-4 w-4"
                   width={16}
                   height={16}
                   loading="lazy"
-                  decoding="async"
                 />
                 Playstore
               </Link>
@@ -162,14 +161,13 @@ const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
                 rel="noopener noreferrer"
                 aria-label={`${p.name} Appstore`}
               >
-                <img
+                <Image
                   src="/assets/appstore.png"
                   alt="Appstore"
                   className="mr-2 h-4 w-4"
                   width={16}
                   height={16}
                   loading="lazy"
-                  decoding="async"
                 />
                 Appstore
               </Link>

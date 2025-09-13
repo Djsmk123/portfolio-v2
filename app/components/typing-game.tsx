@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trophy, Clock, Target, Zap, RotateCcw, Play, Settings, CheckCircle, XCircle } from "lucide-react";
+import { Trophy, Clock, Target, Zap, RotateCcw, Play, Settings } from "lucide-react";
 
 interface GameStats {
   wpm: number;
@@ -359,7 +359,7 @@ export default function TypingGame() {
         scrollToCurrentPosition();
       }
     }
-  }, [isPlaying, currentWord, currentLine, scrollToCurrentPosition]);
+  }, [isPlaying, currentWord, currentLine, scrollToCurrentPosition, userInput.length]);
 
   const getAccuracyColor = (accuracy: number) => {
     if (accuracy >= 90) return "text-green-500";
@@ -421,7 +421,7 @@ export default function TypingGame() {
                   Settings
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-md" showCloseButton={false}>
                 <DialogHeader>
                   <DialogTitle>Game Settings</DialogTitle>
                 </DialogHeader>
