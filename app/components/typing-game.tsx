@@ -231,8 +231,9 @@ export default function TypingGame() {
         
         // Move to next word
         if (wordIndex < words.length - 1) {
-          setWordIndex(prev => prev + 1);
-          setCurrentWord(words[wordIndex + 1]);
+          const nextIndex = wordIndex + 1;
+          setWordIndex(nextIndex);
+          setCurrentWord(words[nextIndex]);
           setUserInput("");
         } else {
           // All words completed
@@ -258,8 +259,9 @@ export default function TypingGame() {
         
         // Move to next line
         if (lineIndex < lines.length - 1) {
-          setLineIndex(prev => prev + 1);
-          setCurrentLine(lines[lineIndex + 1]);
+          const nextIndex = lineIndex + 1;
+          setLineIndex(nextIndex);
+          setCurrentLine(lines[nextIndex]);
           setUserInput("");
         } else {
           // All lines completed
@@ -378,7 +380,7 @@ export default function TypingGame() {
     const inputChars = userInput.split('');
     
     return chars.map((char, index) => {
-      const isTyped = index < userInput.length;
+      const isTyped = index < userInput.length && index < text.length;
       const isCorrect = isTyped && char === inputChars[index];
       const isError = isTyped && errors.includes(index);
       const isCurrent = index === userInput.length;
@@ -398,7 +400,7 @@ export default function TypingGame() {
       }
       
       return (
-        <span key={index} className={className}>
+        <span key={`${lineIndex}-${index}`} className={className}>
           {char === ' ' ? '\u00A0' : char}
         </span>
       );
@@ -549,6 +551,7 @@ export default function TypingGame() {
                   </div>
                   <div className="text-xl font-mono font-bold mb-2 min-h-[2rem] flex items-center justify-center leading-relaxed">
                     <div 
+                      key={`text-${settings.mode === 'words' ? wordIndex : lineIndex}`}
                       ref={textContainerRef}
                       className="text-left max-w-full overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
                       style={{ scrollBehavior: 'smooth' }}

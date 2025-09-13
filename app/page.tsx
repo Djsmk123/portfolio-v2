@@ -6,8 +6,6 @@ import { motion } from "framer-motion";
 import { BlogsSection, ContactSection, ExperienceSection, ProjectsSection } from "./useless";
 import Stats from "./components/stats";
 import GitHubCalendar from 'react-github-calendar';
-import ScrollGameInvite from "./components/scroll-game-invite";
-import GameModal from "./components/game-modal";
 
 import {
   XIcon,
@@ -15,15 +13,15 @@ import {
   LinkedinIcon,
 } from "lucide-react";
 export default function Home() {
-  const [isGameOpen, setIsGameOpen] = useState(false);
+  // const [isGameOpen, setIsGameOpen] = useState(false);
 
-  const handleStartGame = () => {
-    setIsGameOpen(true);
-  };
+  // const handleStartGame = () => {
+  //   setIsGameOpen(true);
+  // };
 
-  const handleCloseGame = () => {
-    setIsGameOpen(false);
-  };
+  // const handleCloseGame = () => {
+  //   setIsGameOpen(false);
+  // };
 
   return (
     <main>
@@ -36,8 +34,8 @@ export default function Home() {
         <ExperienceSection />
         <BlogsSection />
         <ContactSection />
-        <GameModal isOpen={isGameOpen} onClose={handleCloseGame} />
-        <ScrollGameInvite onStartGame={handleStartGame} />
+        {/* <GameModal isOpen={isGameOpen} onClose={handleCloseGame} />
+        <ScrollGameInvite onStartGame={handleStartGame} /> */}
       </div>
     </main>
   );
@@ -388,7 +386,7 @@ export function GithubStats() {
     colorScheme={isDarkMode ? "dark" : "light"}
     hideTotalCount={true}
   />
-</div>
+  </div>
     </Section>
   )
 }

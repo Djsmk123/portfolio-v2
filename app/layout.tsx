@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { Navbar } from "./components/navbar";
 import { BootSequence } from "./components/boot-sequence";
 import { InteractiveBg } from "./components/interactive-bg";
+import { AuthProvider } from "@/lib/auth-context";
+import ConditionalNavbar from "./components/conditional-navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,13 +42,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${playfair.variable} antialiased`}>
-        <Providers>
-          <BootSequence>
-          <InteractiveBg />
-            <Navbar />
+        <AuthProvider>
+          <Providers>
+            <BootSequence>
+              <InteractiveBg />
+              <ConditionalNavbar />
               {children}
-          </BootSequence>
-        </Providers>
+            </BootSequence>
+          </Providers>
+        </AuthProvider>
       </body>
     </html>
   );
