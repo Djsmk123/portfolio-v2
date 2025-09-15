@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -24,27 +24,62 @@ import ResumeUpload from "../admin/components/resume-upload";
 import SocialLinksManagement from "../admin/components/social-links-management";
 
 export default function AdminPanel() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState('projects')
+  const [unsavedByTab, setUnsavedByTab] = useState<Record<string, boolean>>({
+    projects: false,
+    experience: false,
+    skills: false,
+    resume: false,
+    social: false
+  })
+  const [refreshNonceByTab, setRefreshNonceByTab] = useState<Record<string, number>>({
+    projects: 0,
+    experience: 0,
+    skills: 0,
+    resume: 0,
+    social: 0
+  })
   const { signOut, user } = useAuth();
 
-  const handleSaveAll = async () => {
-    setIsLoading(true);
+  // Memoized change handlers per tab to avoid unstable function identities
+  const markProjectsDirty = useCallback(() => {
+    setUnsavedByTab(prev => ({ ...prev, projects: true }))
+  }, [])
+
+  const markExperienceDirty = useCallback(() => {
+    setUnsavedByTab(prev => ({ ...prev, experience: true }))
+  }, [])
+
+  const markSkillsDirty = useCallback(() => {
+    setUnsavedByTab(prev => ({ ...prev, skills: true }))
+  }, [])
+
+  const markResumeDirty = useCallback(() => {
+    setUnsavedByTab(prev => ({ ...prev, resume: true }))
+  }, [])
+
+  const markSocialDirty = useCallback(() => {
+    setUnsavedByTab(prev => ({ ...prev, social: true }))
+  }, [])
+
+  const handleSaveCurrent = async () => {
+    setIsLoading(true)
     try {
-      // Save all data to localStorage or API
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      setHasUnsavedChanges(false);
-      alert("All changes saved successfully!");
-    } catch {
-      alert("Error saving changes. Please try again.");
+      // Save only current tab's data to localStorage or API
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setUnsavedByTab(prev => ({ ...prev, [activeTab]: false }))
+      alert(`Changes for "${activeTab}" saved successfully!`)
+    } catch (err) {
+      alert('Error saving changes. Please try again.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleRefresh = () => {
-    window.location.reload();
-  };
+    setRefreshNonceByTab(prev => ({ ...prev, [activeTab]: (prev[activeTab] || 0) + 1 }))
+  }
 
   const handleSignOut = async () => {
     await signOut();
@@ -77,11 +112,11 @@ export default function AdminPanel() {
                 Refresh
               </Button>
               <Button
-                onClick={handleSaveAll}
-                disabled={isLoading || !hasUnsavedChanges}
+                onClick={handleSaveCurrent}
+                disabled={isLoading || !unsavedByTab[activeTab]}
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isLoading ? "Saving..." : "Save All Changes"}
+                {isLoading ? 'Saving...' : 'Save Changes'}
               </Button>
               <Button
                 variant="outline"
@@ -92,7 +127,7 @@ export default function AdminPanel() {
               </Button>
             </div>
           </div>
-          {hasUnsavedChanges && (
+          {unsavedByTab[activeTab] && (
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
                 You have unsaved changes. Don&apos;t forget to save!
@@ -102,16 +137,9 @@ export default function AdminPanel() {
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="blogs" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="blogs" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Blogs
-            </TabsTrigger>
-            <TabsTrigger value="skills" className="flex items-center gap-2">
-              <Code className="h-4 w-4" />
-              Skills
-            </TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+           
             <TabsTrigger value="projects" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
               Projects
@@ -119,6 +147,10 @@ export default function AdminPanel() {
             <TabsTrigger value="experience" className="flex items-center gap-2">
               <GraduationCap className="h-4 w-4" />
               Experience
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              Skills
             </TabsTrigger>
             <TabsTrigger value="resume" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
@@ -130,27 +162,9 @@ export default function AdminPanel() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="blogs">
-            <Card>
-              <CardHeader>
-                <CardTitle>Blog Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BlogsManagement onDataChange={() => setHasUnsavedChanges(true)} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+      
 
-          <TabsContent value="skills">
-            <Card>
-              <CardHeader>
-                <CardTitle>Skills Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <SkillsManagement onDataChange={() => setHasUnsavedChanges(true)} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+        
 
           <TabsContent value="projects">
             <Card>
@@ -158,7 +172,10 @@ export default function AdminPanel() {
                 <CardTitle>Projects Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <ProjectsManagement onDataChange={() => setHasUnsavedChanges(true)} />
+                <ProjectsManagement
+                  key={refreshNonceByTab.projects}
+                  onDataChange={markProjectsDirty}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -169,7 +186,23 @@ export default function AdminPanel() {
                 <CardTitle>Experience Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <ExperienceManagement onDataChange={() => setHasUnsavedChanges(true)} />
+                <ExperienceManagement
+                  key={refreshNonceByTab.experience}
+                  onDataChange={markExperienceDirty}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="skills">
+            <Card>
+              <CardHeader>
+                <CardTitle>Skills Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SkillsManagement
+                  key={refreshNonceByTab.skills}
+                  onDataChange={markSkillsDirty}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -180,7 +213,10 @@ export default function AdminPanel() {
                 <CardTitle>Resume Upload</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResumeUpload onDataChange={() => setHasUnsavedChanges(true)} />
+                <ResumeUpload
+                  key={refreshNonceByTab.resume}
+                  onDataChange={markResumeDirty}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -191,7 +227,10 @@ export default function AdminPanel() {
                 <CardTitle>Social Links Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <SocialLinksManagement onDataChange={() => setHasUnsavedChanges(true)} />
+                <SocialLinksManagement
+                  key={refreshNonceByTab.social}
+                  onDataChange={markSocialDirty}
+                />
               </CardContent>
             </Card>
           </TabsContent>

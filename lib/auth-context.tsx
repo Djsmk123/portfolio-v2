@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { clearAdminUser, setAdminUserFromSession } from './localstorage'
 
 interface AuthContextType {
   user: User | null;
@@ -25,15 +26,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session) setAdminUserFromSession(session)
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      if (session) setAdminUserFromSession(session)
+      if (event === 'SIGNED_OUT') clearAdminUser()
     });
 
     return () => subscription.unsubscribe();

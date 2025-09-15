@@ -140,6 +140,7 @@ export type projectType = {
   };
   "createdAt": string | Date | number;
   "updatedAt": string | Date | number;
+  "isActive"?: boolean; 
 }
 
 export const projects: projectType[] = [
@@ -208,6 +209,9 @@ export type experienceType = {
   "date": string;
   "description": string;
   "type": ExperienceType;
+  "isActive"?: boolean;
+  "createdAt": string | Date | number;
+  "updatedAt": string | Date | number;
 }
 
 export type profileStatsType = {
@@ -245,6 +249,8 @@ export const experience: experienceType[] = [
     date: "2023-01-01",
     description: "Leading Flutter feature teams and performance efforts.",
     type: ExperienceType["FullTime"],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
     id: "2",
@@ -254,6 +260,8 @@ export const experience: experienceType[] = [
     date: "2021-01-01",
     description: "Shipped multiple cross‑platform apps with CI/CD.",
     type: ExperienceType["Internship"],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
   {
     id: "3",
@@ -263,5 +271,7 @@ export const experience: experienceType[] = [
     date: "2021-01-01",
     description: "Shipped multiple cross‑platform apps with CI/CD.",
     type: ExperienceType["Contract"],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   },
 ];
