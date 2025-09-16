@@ -1,11 +1,29 @@
 import type { projectType } from '@/app/data/mock'
 
-export const fromDb = (row: any): projectType => ({
+type ProjectRow = {
+  id: string
+  name: string
+  description: string
+  tags?: unknown
+  images?: unknown
+  playstore?: string | null
+  appstore?: string | null
+  website?: string | null
+  github?: string | null
+  org_name?: string | null
+  org_logo?: string | null
+  org_url?: string | null
+  is_active?: boolean | null
+  created_at?: string | number | Date
+  updated_at?: string | number | Date
+}
+
+export const fromDb = (row: ProjectRow): projectType => ({
   id: row.id,
   name: row.name,
   desc: row.description,
-  tags: Array.isArray(row.tags) ? row.tags : [],
-  images: Array.isArray(row.images) ? row.images : [],
+  tags: Array.isArray(row.tags) ? row.tags as string[] : [],
+  images: Array.isArray(row.images) ? row.images as string[] : [],
   links: { playstore: row.playstore || '', appstore: row.appstore || '', website: row.website || '' },
   github: row.github || '',
   org: { name: row.org_name || '', logo: row.org_logo || '', url: row.org_url || '' },
@@ -28,7 +46,7 @@ export const toDb = (p: projectType) => ({
   org_logo: p.org?.logo || null,
   org_url: p.org?.url || null,
   // map UI flag to DB
-  is_active: p.hasOwnProperty('isActive') ? Boolean((p as any).isActive) : true
+  is_active: typeof p.isActive === 'boolean' ? p.isActive : true
 })
 
 

@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import type { projectType } from '@/app/data/mock'
 import { Plus, Trash2 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
+import Image from 'next/image'
 
 type Props = {
   project: projectType
@@ -66,13 +67,34 @@ export function EditProjectModal ({ project, isNew, onChange, onCancel, onSave, 
             <div className="space-y-2">
               {project.images.map((image, index) => (
                 <div key={index} className="flex items-center gap-2">
-                  <img src={image} alt={`Project image ${index + 1}`} className="w-16 h-16 object-cover rounded" />
-                  <Input value={image} onChange={e => {
-                    const images = [...project.images]
-                    images[index] = e.target.value
-                    onChange({ ...project, images })
-                  }} className="flex-1" />
-                  <Button variant="ghost" size="sm" onClick={() => onChange({ ...project, images: project.images.filter((_, i) => i !== index) })} className="text-red-500 hover:text-red-700">
+                  <div className="w-16 h-16 relative flex-shrink-0">
+                    <Image
+                    
+                      src={image}
+                      alt={`Project image ${index + 1}`}
+                      fill
+                      sizes="64px"
+                      className="object-cover rounded"
+                      style={{ objectFit: 'cover', borderRadius: '0.375rem' }}
+                      unoptimized={false}
+                      priority={index === 0}
+                    />
+                  </div>
+                  <Input
+                    value={image}
+                    onChange={e => {
+                      const images = [...project.images]
+                      images[index] = e.target.value
+                      onChange({ ...project, images })
+                    }}
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onChange({ ...project, images: project.images.filter((_, i) => i !== index) })}
+                    className="text-red-500 hover:text-red-700"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

@@ -1,6 +1,7 @@
 import type { experienceType } from '@/app/data/mock'
 
-export const fromDb = (row: any): experienceType => ({
+
+export const fromDb = (row: experienceType): experienceType => ({
   id: row.id,
   title: row.title,
   company: row.company,
@@ -8,9 +9,9 @@ export const fromDb = (row: any): experienceType => ({
   date: row.date,
   description: row.description,
   type: row.type,
-  isActive: row.is_active !== false,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at
+  isActive: row.isActive !== false,
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt
 })
 
 export const toDb = (e: experienceType) => ({
@@ -20,7 +21,7 @@ export const toDb = (e: experienceType) => ({
   date: e.date,
   description: e.description,
   type: e.type,
-  is_active: e.hasOwnProperty('isActive') ? Boolean((e as any).isActive) : true
+  is_active: typeof e.isActive === 'boolean' ? e.isActive : true
 })
 
 

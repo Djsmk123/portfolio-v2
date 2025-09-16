@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { 
-  FileText, 
   Code, 
   Briefcase, 
   GraduationCap, 
@@ -16,7 +15,7 @@ import {
   LogOut
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import BlogsManagement from "../admin/components/blogs-management";
+// import BlogsManagement from "../admin/components/blogs-management";
 import SkillsManagement from "../admin/components/skills-management";
 import ProjectsManagement from "../admin/components/projects-management";
 import ExperienceManagement from "../admin/components/experience-management";
@@ -70,7 +69,7 @@ export default function AdminPanel() {
       await new Promise(resolve => setTimeout(resolve, 1000))
       setUnsavedByTab(prev => ({ ...prev, [activeTab]: false }))
       alert(`Changes for "${activeTab}" saved successfully!`)
-    } catch (err) {
+    } catch {
       alert('Error saving changes. Please try again.')
     } finally {
       setIsLoading(false)

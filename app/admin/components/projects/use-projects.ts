@@ -40,9 +40,9 @@ export function useProjects () {
           setProjects(list)
           setTotal(typeof data.total === 'number' ? data.total : 0)
         }
-      } catch (e: any) {
-        if (e?.name === 'AbortError') return
-        if (!cancelled) setError(e?.message || 'Failed to load projects')
+      } catch (e: unknown) {
+        if (e instanceof Error && e.name === 'AbortError') return
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load projects')
       } finally {
         if (!cancelled) setIsFetching(false)
       }

@@ -13,15 +13,8 @@ export const config = {
 }
 
 if (!config.supbaseUrl || !config.supbaseAnonKey) { 
-    const message = 'Supabase URL or anon key is not set'
     // Avoid crashing the browser; only exit on the server side
     if (typeof window === 'undefined') {
-        //fatal error on server
-        // eslint-disable-next-line no-console
-        console.error(message)
         process.exit(1)
-    } else {
-        // eslint-disable-next-line no-console
-        console.error(message)
     }
 }

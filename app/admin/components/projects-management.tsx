@@ -49,8 +49,8 @@
         onDataChange()
         setEditingProject(null)
         setIsAddingNew(false)
-      } catch (e: any) {
-        alert(e?.message || 'Error saving project')
+      } catch (e) {
+        alert(e instanceof Error ? e.message : 'Error saving project')
       } finally {
         setIsSaving(false)
       }

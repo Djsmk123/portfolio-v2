@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { Edit, Trash, ExternalLink, Images, Copy, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
+import { Edit, Trash, ExternalLink, Copy, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -55,7 +55,7 @@ export function AdminProjectCard({
       await navigator.clipboard.writeText(id)
       setCopiedId(true)
       setTimeout(() => setCopiedId(false), 2000)
-    } catch (error) {
+    } catch {
       // Handle clipboard error silently
     }
   }

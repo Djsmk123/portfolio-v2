@@ -58,8 +58,9 @@ export const GET = withApiMiddleware(async ({ req }) => {
       page,
       limit
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 })
 
@@ -121,8 +122,9 @@ export const DELETE = withApiMiddleware(async ({ req }) => {
     const { error } = await supabase.from(TABLE).delete().eq('id', parsed.data.id)
     if (error) throw error
     return new NextResponse(null, { status: 204 })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Unknown error' }, { status: 500 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 })
 
