@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StorageTab from "../admin/components/StorageTab";
 import { Button } from "@/components/ui/button";
 import { 
   Code, 
@@ -14,13 +15,12 @@ import {
   RefreshCw,
   LogOut
 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/lib/auth-context";
-// import BlogsManagement from "../admin/components/blogs-management";
 import SkillsManagement from "../admin/components/skills-management";
 import ProjectsManagement from "../admin/components/projects-management";
 import ExperienceManagement from "../admin/components/experience-management";
 import ResumeUpload from "../admin/components/resume-upload";
-import SocialLinksManagement from "../admin/components/social-links-management";
 
 export default function AdminPanel() {
   const [isLoading, setIsLoading] = useState(false)
@@ -40,6 +40,7 @@ export default function AdminPanel() {
     social: 0
   })
   const { signOut, user } = useAuth();
+  const [banner, setBanner] = useState<{ type: 'success' | 'error', message: string } | null>(null)
 
   // Memoized change handlers per tab to avoid unstable function identities
   const markProjectsDirty = useCallback(() => {
@@ -68,9 +69,9 @@ export default function AdminPanel() {
       // Save only current tab's data to localStorage or API
       await new Promise(resolve => setTimeout(resolve, 1000))
       setUnsavedByTab(prev => ({ ...prev, [activeTab]: false }))
-      alert(`Changes for "${activeTab}" saved successfully!`)
+      setBanner({ type: 'success', message: `Changes for "${activeTab}" saved successfully!` })
     } catch {
-      alert('Error saving changes. Please try again.')
+      setBanner({ type: 'error', message: 'Error saving changes. Please try again.' })
     } finally {
       setIsLoading(false)
     }
@@ -126,6 +127,15 @@ export default function AdminPanel() {
               </Button>
             </div>
           </div>
+          {banner && (
+            <div className="mt-4">
+              <Alert className={banner.type === 'error' ? 'border-destructive/20 bg-destructive/10' : 'border-green-200 bg-green-50'}>
+                <AlertDescription className={banner.type === 'error' ? 'text-destructive' : 'text-green-700'}>
+                  {banner.message}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
           {unsavedByTab[activeTab] && (
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -155,10 +165,10 @@ export default function AdminPanel() {
               <Upload className="h-4 w-4" />
               Resume
             </TabsTrigger>
-            <TabsTrigger value="social" className="flex items-center gap-2">
-              <LinkIcon className="h-4 w-4" />
-              Social Links
+            <TabsTrigger value="storage" className="flex items-center gap-2">
+              Storage
             </TabsTrigger>
+            
           </TabsList>
 
       
@@ -220,19 +230,18 @@ export default function AdminPanel() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="social">
+          <TabsContent value="storage">
             <Card>
               <CardHeader>
-                <CardTitle>Social Links Management</CardTitle>
+                <CardTitle>Storage</CardTitle>
               </CardHeader>
               <CardContent>
-                <SocialLinksManagement
-                  key={refreshNonceByTab.social}
-                  onDataChange={markSocialDirty}
-                />
+                <StorageTab />
               </CardContent>
             </Card>
           </TabsContent>
+
+        
         </Tabs>
       </div>
     </div>

@@ -102,9 +102,10 @@
   type Props = {
     limit: number
     setLimit: (value: number) => void
+    name?: string
   }
   
-  export function LimitSelect({ limit, setLimit }: Props) {
+  export function LimitSelect({ limit, setLimit, name = 'projects' }: Props) {
     return (
       <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
         <SelectTrigger className="w-[120px] text-foreground bg-background border-border focus:ring-ring">
@@ -120,7 +121,7 @@
               value={v.toString()}
               className="text-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
             >
-              {v} projects
+              {v} {name}
             </SelectItem>
           ))}
         </SelectContent>

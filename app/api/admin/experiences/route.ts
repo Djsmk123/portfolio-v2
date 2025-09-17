@@ -5,6 +5,33 @@ import { z } from 'zod'
 
 const TABLE = getTableName('experiences')
 
+// Helpers
+function uiDateToPgRange (ui: string): string {
+  // Accept formats: "YYYY-MM - YYYY-MM" | "YYYY-MM - Present" | "YYYY-MM" | "YYYY-MM -"
+  const [startRaw, endRaw] = (ui.includes(' - ')
+    ? ui.split(' - ')
+    : [ui, '']
+  ).map(s => (s || '').trim())
+  const start = startRaw
+  const end = endRaw
+  if (!/^\d{4}-\d{2}$/.test(start)) throw new Error('Invalid start date')
+  const startIso = `${start}-01`
+  let range: string
+  if (!end || /present/i.test(end)) {
+    // unbounded upper
+    range = `[${startIso},)`
+  } else {
+    if (!/^\d{4}-\d{2}$/.test(end)) throw new Error('Invalid end date')
+    // end exclusive → next month first day
+    const [y, m] = end.split('-').map(n => Number(n))
+    const nextMonth = m === 12 ? 1 : m + 1
+    const nextYear = m === 12 ? y + 1 : y
+    const endIsoExclusive = `${String(nextYear).padStart(4, '0')}-${String(nextMonth).padStart(2, '0')}-01`
+    range = `[${startIso},${endIsoExclusive})`
+  }
+  return range
+}
+
 // Schemas
 const experienceSchema = z.object({
   title: z.string().min(1),
@@ -74,7 +101,8 @@ export const POST = withApiMiddleware(async ({ json }) => {
     title,
     company,
     location,
-    date,
+    // convert UI string to Postgres daterange literal
+    date: uiDateToPgRange(date),
     description,
     type,
     is_active: typeof is_active === 'boolean' ? is_active : true
@@ -98,7 +126,13 @@ export const PATCH = withApiMiddleware(async ({ json }) => {
 
   const { id, title, company, location, date, description, type, is_active } = parsed.data as z.infer<typeof schema>
   const payload = {
-    title, company, location, date, description, type,
+    title,
+    company,
+    location,
+    // convert UI string to Postgres daterange literal
+    date: uiDateToPgRange(date),
+    description,
+    type,
     is_active: typeof is_active === 'boolean' ? is_active : true
   }
   const { data, error } = await supabase

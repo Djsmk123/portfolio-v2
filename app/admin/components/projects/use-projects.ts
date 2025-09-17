@@ -14,6 +14,7 @@ export function useProjects () {
   const [total, setTotal] = useState(0)
   const [query, setQuery] = useState('')
   const isSavingRef = useRef(false)
+  const didRunRef = useRef(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -47,10 +48,14 @@ export function useProjects () {
         if (!cancelled) setIsFetching(false)
       }
     }
+    // Prevent double fetch in React Strict Mode (dev)
+    if (didRunRef.current) return () => { controller.abort() }
+    didRunRef.current = true
     load()
     return () => {
       cancelled = true
       controller.abort()
+      didRunRef.current = false
     }
   }, [page, limit, query])
 

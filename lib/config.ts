@@ -10,6 +10,7 @@ export const config = {
     isDev: process.env.NODE_ENV === Environment.DEVELOPMENT,
     isTest: process.env.NODE_ENV === Environment.TEST,
     isProd: process.env.NODE_ENV === Environment.PRODUCTION,
+    bucket: process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'portfolio',
 }
 
 if (!config.supbaseUrl || !config.supbaseAnonKey) { 

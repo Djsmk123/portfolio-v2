@@ -63,3 +63,36 @@ CREATE INDEX IF NOT EXISTS dev_experiences_type_idx
 CREATE INDEX IF NOT EXISTS dev_experiences_search_idx
   ON public.experiences
   USING GIN (to_tsvector('english', title || ' ' || company || ' ' || location || ' ' || description));
+
+-- Skills table
+CREATE TABLE IF NOT EXISTS public.dev_skills (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  category TEXT NOT NULL,
+  level TEXT NOT NULL CHECK (level IN ('Beginner','Intermediate','Advanced','Expert')),
+  years_of_experience INT NOT NULL DEFAULT 0,
+  icon TEXT,
+  color TEXT,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS dev_skills_updated_at_idx ON public.dev_skills (updated_at DESC);
+CREATE INDEX IF NOT EXISTS dev_skills_category_idx ON public.dev_skills (category);
+
+-- Resumes table
+CREATE TABLE IF NOT EXISTS public.dev_resumes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  url TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  is_default BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE INDEX IF NOT EXISTS dev_resumes_updated_at_idx ON public.dev_resumes (updated_at DESC);
+
+
+

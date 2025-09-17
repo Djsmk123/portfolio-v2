@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { experienceType, ExperienceType } from "@/app/data/mock";
 import { useExperiences } from "./experience/use-experiences";
 import { ExperienceCard } from "./experience/ExperienceCard";
-import { EditExperienceModal } from "./experience/EditExperienceModal";
+import EditExperienceModal from "./experience/EditExperienceModal";
 
 interface ExperienceManagementProps { onDataChange: () => void }
 
@@ -30,7 +30,11 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
   async function onSave () {
     if (!editing) return
     try {
+      //console   
+      console.log('onSave', editing)
       setIsSaving(true)
+      // small microtask delay to ensure latest modal edits are in state
+      await Promise.resolve()
       if (isAddingNew) await createExperience(editing)
       else await updateExperience(editing)
       onDataChange()
@@ -48,7 +52,7 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
           <div className="relative">
             <Input placeholder="Search experiences..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-64" />
           </div>
-          <Select value={type} onValueChange={setType}>
+          {/* <Select value={type} onValueChange={setType}>
             <SelectTrigger className="w-48"><SelectValue placeholder="Filter by type" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
@@ -64,7 +68,25 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
               <SelectItem value="1">Active</SelectItem>
               <SelectItem value="2">Inactive</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> */}
+
+          {/* <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                data-empty={!selectedDate}
+                className={cn(
+                  "data-[empty=true]:text-muted-foreground w-[240px] justify-start text-left font-normal",
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} />
+            </PopoverContent>
+          </Popover> */}
         </div>
         <Button onClick={addNew}>Add New Experience</Button>
       </div>

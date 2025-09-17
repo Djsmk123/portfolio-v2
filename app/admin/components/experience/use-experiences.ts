@@ -16,6 +16,7 @@ export function useExperiences () {
   const [type, setType] = useState<string>('all')
   const [activeType, setActiveType] = useState<number>(0) // 0=all,1=active,2=inactive
   const savingRef = useRef(false)
+  const didRunRef = useRef(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -49,8 +50,11 @@ export function useExperiences () {
         if (!cancelled) setIsFetching(false)
       }
     }
+    // Prevent double fetch in React Strict Mode (dev) while still reacting to deps changes
+    if (didRunRef.current) return () => { controller.abort() }
+    didRunRef.current = true
     load()
-    return () => { cancelled = true; controller.abort() }
+    return () => { cancelled = true; controller.abort(); didRunRef.current = false }
   }, [page, limit, query, type, activeType])
 
   async function createExperience (draft: experienceType) {

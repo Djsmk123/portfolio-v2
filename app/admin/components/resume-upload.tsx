@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,8 @@ import {
   CheckCircle,
   AlertCircle
 } from "lucide-react";
+import { getAdminUser } from "@/lib/localstorage";
+import { LimitSelect } from "./projects-management";
 
 interface ResumeData {
   id: string;
@@ -22,6 +24,7 @@ interface ResumeData {
   size: number;
   uploadedAt: string;
   isActive: boolean;
+  isDefault?: boolean;
 }
 
 interface ResumeUploadProps {
@@ -31,116 +34,103 @@ interface ResumeUploadProps {
 export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
   const [resumes, setResumes] = useState<ResumeData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
+  const [newUrl, setNewUrl] = useState("");
+  const [newName, setNewName] = useState("");
+  const [isFetching, setIsFetching] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [total, setTotal] = useState(0)
+  const didRunRef = useRef(false)
 
-  // Load resumes from localStorage on component mount
+  // Load resumes from API with pagination and strict-mode guard
   useEffect(() => {
-    const savedResumes = localStorage.getItem("admin-resumes");
-    if (savedResumes) {
-      setResumes(JSON.parse(savedResumes));
-    }
-  }, []);
-
-  // Save resumes to localStorage whenever resumes change
-  useEffect(() => {
-    localStorage.setItem("admin-resumes", JSON.stringify(resumes));
-    onDataChange();
-  }, [resumes, onDataChange]);
-
-  const handleFileUpload = async (file: File) => {
-    if (!file) return;
-
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (!allowedTypes.includes(file.type)) {
-      alert('Please upload a PDF or Word document.');
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert('File size must be less than 5MB.');
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // In a real application, you would upload to a server here
-      // For now, we'll simulate the upload and create a local URL
-      const fileUrl = URL.createObjectURL(file);
-      
-      const newResume: ResumeData = {
-        id: Date.now().toString(),
-        name: file.name,
-        url: fileUrl,
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        isActive: resumes.length === 0 // First resume is active by default
-      };
-
-      // If this is the first resume or user wants to make it active, deactivate others
-      if (resumes.length === 0 || confirm('Make this resume active?')) {
-        setResumes(prev => [
-          ...prev.map(r => ({ ...r, isActive: false })),
-          { ...newResume, isActive: true }
-        ]);
-      } else {
-        setResumes(prev => [...prev, newResume]);
+    const controller = new AbortController()
+    let cancelled = false
+    async function load () {
+      setIsFetching(true)
+      setError(null)
+      try {
+        const token = getAdminUser()?.access_token
+        const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+        const res = await fetch(`/api/admin/resumes?${params.toString()}`, { credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : undefined, signal: controller.signal })
+        if (!res.ok) throw new Error(`Failed to load resumes (${res.status})`)
+        const data = await res.json()
+        if (!cancelled) {
+          setResumes((data.resumes || []).map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            url: r.url,
+            size: r.size || 0,
+            uploadedAt: r.created_at || new Date().toISOString(),
+            isActive: r.is_active !== false,
+            isDefault: r.is_default === true
+          })))
+          setTotal(typeof data.total === 'number' ? data.total : 0)
+        }
+      } catch (e) {
+        if (e instanceof Error && e.name === 'AbortError') return
+        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load resumes')
+      } finally {
+        if (!cancelled) setIsFetching(false)
       }
+    }
+    if (didRunRef.current) return () => { controller.abort() }
+    didRunRef.current = true
+    load()
+    return () => { cancelled = true; controller.abort(); didRunRef.current = false }
+  }, [page, limit])
 
-      alert('Resume uploaded successfully!');
-    } catch (error) {
-      console.error('Error uploading resume:', error);
-      alert('Error uploading resume. Please try again.');
+  const addByUrl = async () => {
+    const token = getAdminUser()?.access_token
+    const url = newUrl.trim();
+    const name = newName.trim() || `resume-${Date.now()}`;
+    if (!url) return;
+    setIsUploading(true);
+    try {
+      const payload = { name, url, size: 0, is_active: resumes.length === 0, is_default: resumes.length === 0 }
+      const res = await fetch('/api/admin/resumes', { method: 'POST',  credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` ,'Content-Type': 'application/json'} : undefined, body: JSON.stringify(payload) })
+      if (res.ok) {
+        const { resume } = await res.json()
+        setResumes(prev => [
+          ...prev.map(r => ({ ...r, isActive: payload.is_active ? false : r.isActive })),
+          { id: resume.id, name: resume.name, url: resume.url, size: resume.size || 0, uploadedAt: resume.created_at || new Date().toISOString(), isActive: resume.is_active !== false, isDefault: resume.is_default === true }
+        ])
+      }
+      setNewUrl("");
+      setNewName("");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragActive(false);
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileUpload(files[0]);
-    }
-  };
-
-  const deleteResume = (id: string) => {
-    if (confirm('Are you sure you want to delete this resume?')) {
+  const deleteResume = async (id: string) => {
+    const token = getAdminUser()?.access_token
+    if (!confirm('Are you sure you want to delete this resume?')) return
+    const res = await fetch(`/api/admin/resumes?id=${encodeURIComponent(id)}`, { method: 'DELETE', credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+    if (res.ok || res.status === 204) {
       setResumes(prev => {
         const updated = prev.filter(r => r.id !== id);
-        // If we deleted the active resume, make the first remaining one active
-        if (updated.length > 0 && !updated.some(r => r.isActive)) {
-          updated[0].isActive = true;
-        }
-        return updated;
-      });
+        if (updated.length > 0 && !updated.some(r => r.isActive)) updated[0].isActive = true
+        return updated
+      })
     }
   };
 
-  const setActiveResume = (id: string) => {
-    setResumes(prev => prev.map(r => ({ ...r, isActive: r.id === id })));
+  const setActiveResume = async (id: string) => {
+    const target = resumes.find(r => r.id === id)
+    if (!target) return
+    const token = getAdminUser()?.access_token
+    const res = await fetch('/api/admin/resumes', { method: 'PATCH', credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` ,'Content-Type': 'application/json'} : undefined, body: JSON.stringify({ id, name: target.name, url: target.url, size: target.size, is_active: true }) })
+    if (res.ok) setResumes(prev => prev.map(r => ({ ...r, isActive: r.id === id })))
+  };
+
+  const setDefaultResume = async (id: string) => {
+    const target = resumes.find(r => r.id === id)
+    if (!target) return
+    const token = getAdminUser()?.access_token
+    const res = await fetch('/api/admin/resumes', { method: 'PATCH', credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` ,'Content-Type': 'application/json'} : undefined, body: JSON.stringify({ id, name: target.name, url: target.url, size: target.size, is_default: true }) })
+    if (res.ok) setResumes(prev => prev.map(r => ({ ...r, isDefault: r.id === id })))
   };
 
   const downloadResume = (resume: ResumeData) => {
@@ -162,45 +152,19 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
 
   return (
     <div className="space-y-6">
-      {/* Upload Area */}
+      {/* Add by URL */}
       <Card>
         <CardHeader>
-          <CardTitle>Upload Resume</CardTitle>
+          <CardTitle>Add Resume by URL</CardTitle>
         </CardHeader>
         <CardContent>
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragActive 
-                ? 'border-primary bg-primary/5' 
-                : 'border-muted-foreground/25 hover:border-primary/50'
-            }`}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-          >
-            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">
-              {isUploading ? 'Uploading...' : 'Drop your resume here'}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              or click to browse files (PDF, DOC, DOCX up to 5MB)
-            </p>
-            <div className="space-y-2">
-              <Input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileInput}
-                disabled={isUploading}
-                className="hidden"
-                id="resume-upload"
-              />
-              <Button
-                onClick={() => document.getElementById('resume-upload')?.click()}
-                disabled={isUploading}
-              >
-                {isUploading ? 'Uploading...' : 'Choose File'}
-              </Button>
-            </div>
+          <div className="grid md:grid-cols-3 gap-2">
+            <Input placeholder="Public file URL (PDF or image)" value={newUrl} onChange={e => setNewUrl(e.target.value)} />
+            <Input placeholder="Resume name (for subdomain)" value={newName} onChange={e => setNewName(e.target.value)} />
+            <Button onClick={addByUrl} disabled={isUploading || !newUrl.trim()}>
+              <Upload className="h-4 w-4 mr-2" />
+              Add
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -212,7 +176,7 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
             <CardTitle>Uploaded Resumes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+          <div className="space-y-4">
               {resumes.map((resume) => (
                 <div
                   key={resume.id}
@@ -232,6 +196,9 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
                             <CheckCircle className="h-3 w-3 mr-1" />
                             Active
                           </Badge>
+                        )}
+                        {resume.isDefault && (
+                          <Badge variant="outline" className="text-xs">Default</Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -261,7 +228,16 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
                         size="sm"
                         onClick={() => setActiveResume(resume.id)}
                       >
-                        Set Active
+                        Make Active
+                      </Button>
+                    )}
+                    {resume.isActive && !resume.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDefaultResume(resume.id)}
+                      >
+                        Make Default
                       </Button>
                     )}
                     <Button
@@ -280,24 +256,17 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
         </Card>
       )}
 
-      {/* Instructions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            Instructions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>• Upload your resume in PDF, DOC, or DOCX format</p>
-            <p>• Maximum file size: 5MB</p>
-            <p>• Only one resume can be active at a time</p>
-            <p>• The active resume will be displayed on your portfolio</p>
-            <p>• You can preview and download your uploaded resumes</p>
-          </div>
-        </CardContent>
-      </Card>
+
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-sm text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1 || isFetching}>Prev</Button>
+          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit)) || isFetching}>Next</Button>
+         <LimitSelect limit={limit} setLimit={setLimit} name="resumes" />
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import React, { useEffect, useMemo, useState, useCallback } from "react"
 import {
   Dialog,
   DialogContent,
@@ -8,15 +9,16 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import type { experienceType } from "@/app/data/mock"
-import { useEffect, useMemo, useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Calendar, Briefcase, Clock, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { experienceType } from "@/app/data/mock"
+import JobDetails from "./JobDetails"
+import PeriodPicker from "./PeriodPicker"
 
-type Props = {
-  exp: experienceType
+export type Props = {
+exp: experienceType
   isNew: boolean
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -25,7 +27,15 @@ type Props = {
   isSaving: boolean
 }
 
-export function EditExperienceModal({
+const months = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+]
+
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: 50 }, (_, i) => currentYear - i)
+
+export default function EditExperienceModal ({
   exp,
   isNew,
   open,
@@ -35,184 +45,154 @@ export function EditExperienceModal({
   isSaving,
 }: Props) {
   const [startMonth, setStartMonth] = useState("")
+  const [startYear, setStartYear] = useState("")
   const [endMonth, setEndMonth] = useState("")
+  const [endYear, setEndYear] = useState("")
   const [isPresent, setIsPresent] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // parse incoming value once
   useEffect(() => {
     const raw = (exp.date || "").trim()
-    const parts = raw.split("-").map((s) => s.trim())
-    if (parts.length >= 1 && /^\d{4}-\d{2}$/.test(parts[0])) setStartMonth(parts[0])
-    if (parts.length >= 2) {
-      if (/present/i.test(parts[1])) {
-        setIsPresent(true)
-        setEndMonth("")
-      } else if (/^\d{4}-\d{2}$/.test(parts[1])) {
-        setEndMonth(parts[1])
-      }
+    if (!raw) return
+    const [startRaw, endRaw = ""] = (raw.includes(" - ") ? raw.split(" - ") : [raw, ""]).map(s => s.trim())
+    if (/^\d{4}-\d{2}$/.test(startRaw)) {
+      const [y, m] = startRaw.split("-")
+      setStartYear(y)
+      setStartMonth(String(parseInt(m)))
+    }
+    if (/present/i.test(endRaw)) {
+      setIsPresent(true)
+      setEndMonth("")
+      setEndYear("")
+    } else if (/^\d{4}-\d{2}$/.test(endRaw)) {
+      const [y, m] = endRaw.split("-")
+      setEndYear(y)
+      setEndMonth(String(parseInt(m)))
+      setIsPresent(false)
     }
   }, [exp.date])
 
-  function applyDateChange(nextStart: string, nextEnd: string, nextPresent: boolean) {
-    const dateStr = nextStart
-      ? `${nextStart} - ${nextPresent ? "Present" : nextEnd || ""}`.trim()
-      : ""
-    onChange({ ...exp, date: dateStr })
-  }
-
-  const dateErrors = useMemo(() => {
-    const errs: string[] = []
-    if (!startMonth) errs.push("Start month required")
-    if (!isPresent && !endMonth) errs.push("End month required")
-    if (startMonth && endMonth && !isPresent) {
-      if (startMonth > endMonth) errs.push("End must be after start")
+  const formatDateString = useCallback(() => {
+    if (!startMonth || !startYear) return ""
+    const startStr = `${startYear}-${String(parseInt(startMonth)).padStart(2, '0')}`
+    if (isPresent) return `${startStr} - Present`
+    if (endMonth && endYear) {
+      const endStr = `${endYear}-${String(parseInt(endMonth)).padStart(2, '0')}`
+      return `${startStr} - ${endStr}`
     }
-    return errs
-  }, [startMonth, endMonth, isPresent])
+    return startStr
+  }, [startMonth, startYear, endMonth, endYear, isPresent])
 
-  const valid =
-    exp.title.trim() &&
-    exp.company.trim() &&
-    exp.location.trim() &&
-    exp.description.trim() &&
-    dateErrors.length === 0 &&
-    !!startMonth &&
-    (isPresent || !!endMonth)
+  // keep parent date in sync
+  useEffect(() => {
+    const dateStr = formatDateString()
+    if (exp.date !== dateStr) onChange({ ...exp, date: dateStr })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formatDateString])
+
+  const validateForm = useCallback(() => {
+    const next: Record<string, string> = {}
+    if (!exp.title.trim()) next.title = "Job title is required"
+    if (!exp.company.trim()) next.company = "Company name is required"
+    if (!exp.location.trim()) next.location = "Location is required"
+    if (!exp.description.trim()) next.description = "Description is required"
+    if (!startMonth || !startYear) next.startDate = "Start date is required"
+    if (!isPresent && (!endMonth || !endYear)) next.endDate = "End date is required (or mark as Present)"
+    if (startYear && startMonth && endYear && endMonth && !isPresent) {
+      const a = new Date(parseInt(startYear), parseInt(startMonth) - 1)
+      const b = new Date(parseInt(endYear), parseInt(endMonth) - 1)
+      if (b < a) next.dateRange = "End date cannot be before start date"
+    }
+    setErrors(next)
+    return Object.keys(next).length === 0
+  }, [exp, startMonth, startYear, endMonth, endYear, isPresent])
+
+  const isValid = useMemo(() => (
+    exp.title.trim() && exp.company.trim() && exp.location.trim() && exp.description.trim() &&
+    startMonth && startYear && (isPresent || (endMonth && endYear))
+  ), [exp, startMonth, startYear, endMonth, endYear, isPresent])
+
+  const handleSave = useCallback(async () => {
+    if (!validateForm()) return
+    await Promise.resolve()
+    await onSave()
+  }, [validateForm, onSave])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isNew ? "Add New Experience" : "Edit Experience"}</DialogTitle>
+      <DialogContent className="max-w-3xl max-h:[90vh] overflow-y-auto p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
+          <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
+            <Briefcase className="w-6 h-6 text-primary" />
+            {isNew ? "Add New Experience" : "Edit Experience"}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* Title + Active */}
-          <div className="grid grid-cols-2 gap-4 items-end">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={exp.title}
-                onChange={(e) => onChange({ ...exp, title: e.target.value })}
-              />
-            </div>
-            <div className="flex items-center justify-end gap-2">
-              <Label htmlFor="is-active">Active</Label>
-              <Switch
-                id="is-active"
-                checked={exp.isActive !== false}
-                onCheckedChange={(c) =>
-                  onChange({ ...exp, isActive: Boolean(c) })
-                }
-              />
-            </div>
-          </div>
+        <div className="px-6 py-6 space-y-6">
+          <Card className="border-0 shadow-sm bg-muted/30">
+            <CardContent className="pt-6 space-y-4">
+              <JobDetails exp={exp} errors={errors} onChange={onChange} setErrors={setErrors} />
+            </CardContent>
+          </Card>
 
-          {/* Company + Location */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="company">Company</Label>
-              <Input
-                id="company"
-                value={exp.company}
-                onChange={(e) => onChange({ ...exp, company: e.target.value })}
+          <Card className="border-0 shadow-sm bg-muted/30">
+            <CardContent>
+              <PeriodPicker
+                months={months}
+                years={years}
+                startMonth={startMonth}
+                startYear={startYear}
+                endMonth={endMonth}
+                endYear={endYear}
+                isPresent={isPresent}
+                errors={errors}
+                setStartMonth={setStartMonth}
+                setStartYear={setStartYear}
+                setEndMonth={setEndMonth}
+                setEndYear={setEndYear}
+                setIsPresent={setIsPresent}
               />
-            </div>
-            <div>
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                value={exp.location}
-                onChange={(e) => onChange({ ...exp, location: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {/* Dates */}
-          <div className="space-y-2">
-            <Label>Date</Label>
-            <div className="grid grid-cols-2 gap-3 items-end">
-              <div>
-                <Label htmlFor="start">Start</Label>
-                <Input
-                  id="start"
-                  type="month"
-                  value={startMonth}
-                  onChange={(e) => {
-                    const v = e.target.value
-                    setStartMonth(v)
-                    applyDateChange(v, endMonth, isPresent)
-                  }}
-                />
-              </div>
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
-                  <Label htmlFor="end">End</Label>
-                  <Input
-                    id="end"
-                    type="month"
-                    value={endMonth}
-                    disabled={isPresent}
-                    onChange={(e) => {
-                      const v = e.target.value
-                      setEndMonth(v)
-                      applyDateChange(startMonth, v, isPresent)
-                    }}
-                  />
+              {errors.dateRange && (
+                <Alert className="mt-4 border-destructive/20 bg-destructive/10">
+                  <AlertCircle className="h-4 w-4 text-destructive" />
+                  <AlertDescription className="text-destructive">{errors.dateRange}</AlertDescription>
+                </Alert>
+              )}
+              {startMonth && startYear && (
+                <div className="mt-4 p-3 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-primary flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Duration: {formatDateString()}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Label htmlFor="present">Present</Label>
-                  <Switch
-                    id="present"
-                    checked={isPresent}
-                    onCheckedChange={(c) => {
-                      const b = Boolean(c)
-                      setIsPresent(b)
-                      if (b) setEndMonth("")
-                      applyDateChange(startMonth, b ? "" : endMonth, b)
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-            {dateErrors.length > 0 && (
-              <div className="text-xs text-red-500">{dateErrors.join(" • ")}</div>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
 
-          {/* Description */}
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              rows={3}
-              value={exp.description}
-              onChange={(e) => onChange({ ...exp, description: e.target.value })}
+          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+            <div>
+              <Label htmlFor="is-active" className="text-sm font-medium">Mark as Active</Label>
+              <p className="text-xs text-muted-foreground mt-1">Show this experience prominently on your profile</p>
+            </div>
+            {/* lightweight toggle using onChange from parent */}
+            <input
+              id="is-active"
+              type="checkbox"
+              className="h-4 w-4 accent-current"
+              checked={exp.isActive !== false}
+              onChange={e => onChange({ ...exp, isActive: e.target.checked })}
             />
           </div>
-
-          {!valid && (
-            <div className="text-sm text-red-500">
-              Please fill all required fields.
-            </div>
-          )}
         </div>
 
-        <DialogFooter className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            type="button"
-          >
-            Cancel
-          </Button>
-          <Button onClick={onSave} disabled={isSaving || !valid} type="button">
-            {isSaving
-              ? "Saving..."
-              : isNew
-              ? "Add Experience"
-              : "Save Changes"}
-          </Button>
+        <DialogFooter className="px-6 py-4 border-t bg-muted/30">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} className="w-full sm:w-auto">Cancel</Button>
+            <Button onClick={handleSave} disabled={isSaving || !isValid} className="w-full sm:w-auto">
+              {isSaving ? 'Saving...' : (isNew ? 'Add Experience' : 'Save Changes')}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

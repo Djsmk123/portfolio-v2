@@ -1,4 +1,5 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useCallback } from "react";
 
 const codeSnippets = {
@@ -66,6 +67,8 @@ const languages = Object.keys(codeSnippets) as Array<
 
 export function InteractiveBg() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const pathname = usePathname();
+
 
   // 🔥 Use refs instead of state
   const scrollYRef = useRef(0);
@@ -76,6 +79,9 @@ export function InteractiveBg() {
   }, []);
 
   useEffect(() => {
+    if (pathname?.startsWith("/admin")) {
+      return;
+    }
     const canvas = ref.current!;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -384,8 +390,12 @@ export function InteractiveBg() {
       resizeObserver.disconnect();
     };
   }, [handleScroll]);
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
+    
     <canvas
       ref={ref}
       className="pointer-events-none absolute inset-0 -z-10 opacity-80 w-full block"

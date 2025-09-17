@@ -275,3 +275,32 @@ export const experience: experienceType[] = [
     updatedAt: Date.now()
   },
 ];
+
+// Skill primitives
+export type skillType = {
+  id: string
+  name: string
+  category: 'frontend' | 'backend' | 'mobile' | 'design' | 'cloud' | 'other'
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
+  yearsOfExperience: number
+  icon?: string
+  color?: string
+}
+
+export const skillColors: Record<string, string> = {
+  React: '#61DAFB',
+  TypeScript: '#3178C6',
+  JavaScript: '#F7DF1E',
+  NextJS: '#000000',
+  TailwindCSS: '#06B6D4',
+  NodeJS: '#339933',
+  Express: '#000000',
+  PostgreSQL: '#336791',
+  Supabase: '#3ECF8E',
+  Flutter: '#02569B',
+  Dart: '#0175C2',
+  AWS: '#FF9900',
+  GCP: '#4285F4',
+  Figma: '#F24E1E',
+  Docker: '#2496ED',
+}
