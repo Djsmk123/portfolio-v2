@@ -87,50 +87,60 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-full">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Admin Panel</h1>
-              <p className="text-muted-foreground mt-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-3xl font-bold truncate">Admin Panel</h1>
+              <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
                 Manage your portfolio content and settings
               </p>
               {user && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                   Signed in as {user.email}
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={handleRefresh}
-                disabled={isLoading}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-              <Button
-                onClick={handleSaveCurrent}
-                disabled={isLoading || !unsavedByTab[activeTab]}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </Button>
+            
+            {/* Action Buttons - Responsive Layout */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 w-full sm:w-auto">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={handleRefresh}
+                  disabled={isLoading}
+                  className="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2 h-9"
+                >
+                  <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">Refresh</span>
+                </Button>
+                <Button
+                  onClick={handleSaveCurrent}
+                  disabled={isLoading || !unsavedByTab[activeTab]}
+                  className="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-2 h-9"
+                >
+                  <Save className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden xs:inline">{isLoading ? 'Saving...' : 'Save'}</span>
+                  <span className="xs:hidden">{isLoading ? '...' : 'Save'}</span>
+                </Button>
+              </div>
               <Button
                 variant="outline"
                 onClick={handleSignOut}
+                className="text-xs sm:text-sm px-3 py-2 h-9"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
+                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden xs:inline">Sign Out</span>
               </Button>
             </div>
           </div>
+          
+          {/* Alerts */}
           {banner && (
             <div className="mt-4">
               <Alert className={banner.type === 'error' ? 'border-destructive/20 bg-destructive/10' : 'border-green-200 bg-green-50'}>
-                <AlertDescription className={banner.type === 'error' ? 'text-destructive' : 'text-green-700'}>
+                <AlertDescription className={`${banner.type === 'error' ? 'text-destructive' : 'text-green-700'} text-sm`}>
                   {banner.message}
                 </AlertDescription>
               </Alert>
@@ -138,7 +148,7 @@ export default function AdminPanel() {
           )}
           {unsavedByTab[activeTab] && (
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <p className="text-xs sm:text-sm text-yellow-800 dark:text-yellow-200">
                 You have unsaved changes. Don&apos;t forget to save!
               </p>
             </div>
@@ -146,41 +156,55 @@ export default function AdminPanel() {
         </div>
 
         {/* Main Content */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-           
-            <TabsTrigger value="projects" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              Projects
-            </TabsTrigger>
-            <TabsTrigger value="experience" className="flex items-center gap-2">
-              <GraduationCap className="h-4 w-4" />
-              Experience
-            </TabsTrigger>
-            <TabsTrigger value="skills" className="flex items-center gap-2">
-              <Code className="h-4 w-4" />
-              Skills
-            </TabsTrigger>
-            <TabsTrigger value="resume" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Resume
-            </TabsTrigger>
-            <TabsTrigger value="storage" className="flex items-center gap-2">
-              Storage
-            </TabsTrigger>
-            
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          {/* Responsive Tab List */}
+          <div className="overflow-x-auto">
+            <TabsList className="grid grid-cols-5 w-full min-w-[500px] sm:min-w-full h-auto sm:h-10">
+              <TabsTrigger 
+                value="projects" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-h-[60px] sm:min-h-0"
+              >
+                <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="leading-tight">Projects</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="experience" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-h-[60px] sm:min-h-0"
+              >
+                <GraduationCap className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="leading-tight">Experience</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="skills" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-h-[60px] sm:min-h-0"
+              >
+                <Code className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="leading-tight">Skills</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="resume" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-h-[60px] sm:min-h-0"
+              >
+                <Upload className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="leading-tight">Resume</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="storage" 
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-h-[60px] sm:min-h-0"
+              >
+                <LinkIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="leading-tight">Storage</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-      
-
-        
-
+          {/* Tab Content */}
           <TabsContent value="projects">
-            <Card>
-              <CardHeader>
-                <CardTitle>Projects Management</CardTitle>
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+              <CardHeader className="px-3 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-lg sm:text-xl">Projects Management</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                 <ProjectsManagement
                   key={refreshNonceByTab.projects}
                   onDataChange={markProjectsDirty}
@@ -190,11 +214,11 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="experience">
-            <Card>
-              <CardHeader>
-                <CardTitle>Experience Management</CardTitle>
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+              <CardHeader className="px-3 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-lg sm:text-xl">Experience Management</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                 <ExperienceManagement
                   key={refreshNonceByTab.experience}
                   onDataChange={markExperienceDirty}
@@ -202,12 +226,13 @@ export default function AdminPanel() {
               </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="skills">
-            <Card>
-              <CardHeader>
-                <CardTitle>Skills Management</CardTitle>
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+              <CardHeader className="px-3 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-lg sm:text-xl">Skills Management</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                 <SkillsManagement
                   key={refreshNonceByTab.skills}
                   onDataChange={markSkillsDirty}
@@ -217,11 +242,11 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="resume">
-            <Card>
-              <CardHeader>
-                <CardTitle>Resume Upload</CardTitle>
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+              <CardHeader className="px-3 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-lg sm:text-xl">Resume Upload</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                 <ResumeUpload
                   key={refreshNonceByTab.resume}
                   onDataChange={markResumeDirty}
@@ -231,17 +256,15 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="storage">
-            <Card>
-              <CardHeader>
-                <CardTitle>Storage</CardTitle>
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+              <CardHeader className="px-3 sm:px-6 py-4 sm:py-6">
+                <CardTitle className="text-lg sm:text-xl">Storage</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
                 <StorageTab />
               </CardContent>
             </Card>
           </TabsContent>
-
-        
         </Tabs>
       </div>
     </div>

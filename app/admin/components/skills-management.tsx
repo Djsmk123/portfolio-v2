@@ -43,12 +43,12 @@ export default function SkillsManagement ({ onDataChange }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="relative">
+      <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+        <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input placeholder="Search skills..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-64" />
+          <Input placeholder="Search skills..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-full sm:w-64" />
         </div>
-        <Button onClick={addNew}><Plus className="h-4 w-4 mr-2" />Add New Skill</Button>
+        <Button onClick={addNew} className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" />Add New Skill</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -59,15 +59,17 @@ export default function SkillsManagement ({ onDataChange }: Props) {
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>Prev</Button>
-          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))}>Next</Button>
-          <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
-            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-            <SelectContent>{[12, 24, 36, 48].map(v => (<SelectItem key={v} value={v.toString()}>{v} / page</SelectItem>))}</SelectContent>
-          </Select>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="text-sm text-muted-foreground w-full sm:w-auto">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="w-full sm:w-auto">Prev</Button>
+          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))} className="w-full sm:w-auto">Next</Button>
+          <div className="w-full sm:w-auto">
+            <Select value={limit.toString()} onValueChange={(value) => setLimit(Number(value))}>
+              <SelectTrigger className="w-full sm:w-[120px]"><SelectValue /></SelectTrigger>
+              <SelectContent>{[12, 24, 36, 48].map(v => (<SelectItem key={v} value={v.toString()}>{v} / page</SelectItem>))}</SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

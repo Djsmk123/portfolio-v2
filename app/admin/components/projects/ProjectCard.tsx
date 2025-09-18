@@ -296,54 +296,56 @@ export function AdminProjectCard({
           </div>
         </CardContent>
 
-        <CardFooter className="pt-0 flex items-center justify-between">
-          {/* External Links */}
-          <div className="flex items-center gap-2">
-            {links.website && (
-              <Button size="sm" asChild>
-                <a href={links.website} target="_blank" rel="noopener noreferrer">
-                  Visit Site
-                </a>
-              </Button>
-            )}
-            {links.playstore && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={links.playstore} target="_blank" rel="noopener noreferrer">
-                  Play Store
-                </a>
-              </Button>
-            )}
-            {links.appstore && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={links.appstore} target="_blank" rel="noopener noreferrer">
-                  App Store
-                </a>
-              </Button>
-            )}
-          </div>
+        <CardFooter className="pt-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
+  {/* External Links */}
+  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+    {links.website && (
+      <Button size="sm" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+        <a href={links.website} target="_blank" rel="noopener noreferrer">
+          <span className="truncate">Visit Site</span>
+        </a>
+      </Button>
+    )}
+    {links.playstore && (
+      <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+        <a href={links.playstore} target="_blank" rel="noopener noreferrer">
+          <span className="truncate">Play Store</span>
+        </a>
+      </Button>
+    )}
+    {links.appstore && (
+      <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+        <a href={links.appstore} target="_blank" rel="noopener noreferrer">
+          <span className="truncate">App Store</span>
+        </a>
+      </Button>
+    )}
+  </div>
 
-          {/* Copy ID Button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={handleCopyId}
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-muted"
-                >
-                  <span className="font-mono">{id.slice(0, 8)}...</span>
-                  {copiedId ? (
-                    <span className="text-green-600 font-medium">✓</span>
-                  ) : (
-                    <Copy className="h-3 w-3" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {copiedId ? 'Copied!' : 'Copy full ID'}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </CardFooter>
+  {/* Copy ID Button */}
+  <div className="w-full sm:w-auto flex justify-end sm:justify-center">
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={handleCopyId}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-muted shrink-0"
+          >
+            <span className="font-mono">{id.slice(0, 8)}...</span>
+            {copiedId ? (
+              <span className="text-green-600 font-medium">✓</span>
+            ) : (
+              <Copy className="h-3 w-3" />
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>
+          {copiedId ? 'Copied!' : 'Copy full ID'}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </div>
+</CardFooter>
       </Card>
 
       {/* Image Gallery Dialog */}

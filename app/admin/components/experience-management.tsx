@@ -47,10 +47,10 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-          <div className="relative">
-            <Input placeholder="Search experiences..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-64" />
+      <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center w-full">
+          <div className="relative w-full sm:w-auto">
+            <Input placeholder="Search experiences..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-full sm:w-64" />
           </div>
           {/* <Select value={type} onValueChange={setType}>
             <SelectTrigger className="w-48"><SelectValue placeholder="Filter by type" /></SelectTrigger>
@@ -88,7 +88,7 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
             </PopoverContent>
           </Popover> */}
         </div>
-        <Button onClick={addNew}>Add New Experience</Button>
+        <Button onClick={addNew} className="w-full sm:w-auto">Add New Experience</Button>
       </div>
 
       <div className="space-y-4">
@@ -99,17 +99,19 @@ export default function ExperienceManagement ({ onDataChange }: ExperienceManage
         ))}
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>Prev</Button>
-          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))}>Next</Button>
-          <Select value={String(limit)} onValueChange={v => setLimit(Number(v))}>
-            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {[10, 20, 30, 40, 50].map(v => (<SelectItem key={v} value={String(v)}>{v} / page</SelectItem>))}
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="text-sm text-muted-foreground w-full sm:w-auto">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
+        <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="w-full sm:w-auto">Prev</Button>
+          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))} className="w-full sm:w-auto">Next</Button>
+          <div className="w-full sm:w-auto">
+            <Select value={String(limit)} onValueChange={v => setLimit(Number(v))}>
+              <SelectTrigger className="w-full sm:w-32"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[10, 20, 30, 40, 50].map(v => (<SelectItem key={v} value={String(v)}>{v} / page</SelectItem>))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

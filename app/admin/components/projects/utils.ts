@@ -29,8 +29,8 @@ export const fromDb = (row: ProjectRow): projectType => ({
   org: { name: row.org_name || '', logo: row.org_logo || '', url: row.org_url || '' },
   // map DB flag to UI
   isActive: row.is_active !== false,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at
+  createdAt: row.created_at as string | number | Date,
+  updatedAt: row.updated_at as string | number | Date
 })
 
 export const toDb = (p: projectType) => ({

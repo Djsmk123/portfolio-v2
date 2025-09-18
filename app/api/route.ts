@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
+import { withApiMiddleware } from '@/lib/api-middleware'
 
-export async function GET() {
+export const GET = withApiMiddleware(async () => {
   try {
     // Get search params from the request
     
@@ -20,4 +21,4 @@ export async function GET() {
       { status: 500 }
     )
   }
-}
+})

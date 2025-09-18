@@ -12,8 +12,16 @@ import {
   Trash2,
   Eye,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  MoreVertical
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getAdminUser } from "@/lib/localstorage";
 import { LimitSelect } from "./projects-management";
 
@@ -151,103 +159,167 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Add by URL */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Add Resume by URL</CardTitle>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Add by URL - Mobile Optimized */}
+      <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+        <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+          <CardTitle className="text-lg sm:text-xl">Add Resume by URL</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-2">
-            <Input placeholder="Public file URL (PDF or image)" value={newUrl} onChange={e => setNewUrl(e.target.value)} />
-            <Input placeholder="Resume name (for subdomain)" value={newName} onChange={e => setNewName(e.target.value)} />
-            <Button onClick={addByUrl} disabled={isUploading || !newUrl.trim()}>
+        <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 sm:gap-2">
+            <Input 
+              placeholder="Public file URL (PDF or image)" 
+              value={newUrl} 
+              onChange={e => setNewUrl(e.target.value)}
+              className="text-sm"
+            />
+            <Input 
+              placeholder="Resume name" 
+              value={newName} 
+              onChange={e => setNewName(e.target.value)}
+              className="text-sm"
+            />
+            <Button 
+              onClick={addByUrl} 
+              disabled={isUploading || !newUrl.trim()}
+              className="w-full sm:w-auto"
+            >
               <Upload className="h-4 w-4 mr-2" />
-              Add
+              {isUploading ? 'Adding...' : 'Add'}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Resume List */}
+      {/* Resume List - Mobile Optimized */}
       {resumes.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Uploaded Resumes</CardTitle>
+        <Card className="border-0 sm:border shadow-none sm:shadow-sm">
+          <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+            <CardTitle className="text-lg sm:text-xl">Uploaded Resumes</CardTitle>
           </CardHeader>
-          <CardContent>
-          <div className="space-y-4">
+          <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="space-y-3 sm:space-y-4">
               {resumes.map((resume) => (
                 <div
                   key={resume.id}
-                  className={`flex items-center justify-between p-4 border rounded-lg ${
+                  className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg ${
                     resume.isActive ? 'border-primary bg-primary/5' : 'border-muted'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <FileText className="h-5 w-5 text-primary" />
+                  {/* Resume Info */}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{resume.name}</h4>
-                        {resume.isActive && (
-                          <Badge variant="default" className="text-xs">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Active
-                          </Badge>
-                        )}
-                        {resume.isDefault && (
-                          <Badge variant="outline" className="text-xs">Default</Badge>
-                        )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        <h4 className="font-medium text-sm sm:text-base truncate">{resume.name}</h4>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {resume.isActive && (
+                            <Badge variant="default" className="text-xs h-5">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          )}
+                          {resume.isDefault && (
+                            <Badge variant="outline" className="text-xs h-5">Default</Badge>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                         {formatFileSize(resume.size)} • {new Date(resume.uploadedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(resume.url, '_blank')}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => downloadResume(resume)}
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    {!resume.isActive && (
+
+                  {/* Actions - Mobile First Design */}
+                  <div className="flex items-center justify-between sm:justify-end gap-2">
+                    {/* Primary Actions - Always visible */}
+                    <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setActiveResume(resume.id)}
+                        onClick={() => window.open(resume.url, '_blank')}
+                        className="h-8 w-8 p-0"
+                        title="View Resume"
                       >
-                        Make Active
+                        <Eye className="h-4 w-4" />
                       </Button>
-                    )}
-                    {resume.isActive && !resume.isDefault && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setDefaultResume(resume.id)}
+                        onClick={() => downloadResume(resume)}
+                        className="h-8 w-8 p-0"
+                        title="Download Resume"
                       >
-                        Make Default
+                        <Download className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteResume(resume.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    </div>
+
+                    {/* Desktop: Show all buttons */}
+                    <div className="hidden sm:flex items-center gap-1">
+                      {!resume.isActive && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setActiveResume(resume.id)}
+                          className="h-8 px-3 text-xs whitespace-nowrap"
+                        >
+                          Make Active
+                        </Button>
+                      )}
+                      {resume.isActive && !resume.isDefault && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDefaultResume(resume.id)}
+                          className="h-8 px-3 text-xs whitespace-nowrap"
+                        >
+                          Make Default
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteResume(resume.id)}
+                        className="h-8 px-3 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Mobile: Dropdown menu */}
+                    <div className="sm:hidden">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          {!resume.isActive && (
+                            <DropdownMenuItem onClick={() => setActiveResume(resume.id)}>
+                              Make Active
+                            </DropdownMenuItem>
+                          )}
+                          {resume.isActive && !resume.isDefault && (
+                            <DropdownMenuItem onClick={() => setDefaultResume(resume.id)}>
+                              Make Default
+                            </DropdownMenuItem>
+                          )}
+                          {(!resume.isActive || (resume.isActive && !resume.isDefault)) && (
+                            <DropdownMenuSeparator />
+                          )}
+                          <DropdownMenuItem 
+                            onClick={() => deleteResume(resume.id)}
+                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -256,15 +328,37 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
         </Card>
       )}
 
-
-
-      {/* Pagination Controls */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1 || isFetching}>Prev</Button>
-          <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit)) || isFetching}>Next</Button>
-         <LimitSelect limit={limit} setLimit={setLimit} name="resumes" />
+      {/* Pagination Controls - Mobile Optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
+        <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
+          <span className="block sm:inline">Page {page} of {Math.max(1, Math.ceil(total / limit))}</span>
+          <span className="hidden sm:inline"> • </span>
+          <span className="block sm:inline">{total} total</span>
+        </div>
+        <div className="flex items-center justify-between sm:justify-end gap-2 order-1 sm:order-2">
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setPage(Math.max(1, page - 1))} 
+              disabled={page <= 1 || isFetching}
+              className="px-3 py-2 text-xs sm:text-sm"
+            >
+              Prev
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setPage(page + 1)} 
+              disabled={page >= Math.max(1, Math.ceil(total / limit)) || isFetching}
+              className="px-3 py-2 text-xs sm:text-sm"
+            >
+              Next
+            </Button>
+          </div>
+          <div className="flex-shrink-0">
+            <LimitSelect limit={limit} setLimit={setLimit} name="resumes" />
+          </div>
         </div>
       </div>
     </div>

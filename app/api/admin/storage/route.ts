@@ -6,20 +6,29 @@ import { config } from '@/lib/config'
 
 const BUCKET = config.bucket
 
-export const GET = withApiMiddleware(async ({ req, headers }) => {
+export const GET = withApiMiddleware(async ({ req }) => {
   const { searchParams } = new URL(req.url)
   const prefix = searchParams.get('prefix') || ''
-  const { data, error } = await supabase.storage.from(BUCKET).list(prefix, { limit: 100 })
+  const page = Math.max(Number(searchParams.get('page') || 1), 1)
+  const limit = Math.min(Math.max(Number(searchParams.get('limit') || 30), 1), 100)
+
+  const { data, error } = await supabase.storage.from(BUCKET).list(prefix, {
+    limit,
+    offset: (page - 1) * limit,
+    sortBy: { column: 'name', order: 'asc' },
+  })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  const files = (data || []).map(f => ({
-    name: f.name,
-    id: `${prefix}${f.name}`,
-    updated_at: f.updated_at,
-    metadata: f.metadata,
-    size: f.metadata?.size || 0,
-    url: supabase.storage.from(BUCKET).getPublicUrl(`${prefix}${f.name}`).data.publicUrl,
+  const entries = (data || [])
+  const folders = entries.filter(e => !e.metadata).map(e => ({ name: e.name, id: prefix ? `${prefix}/${e.name}` : e.name }))
+  const files = entries.filter(e => !!e.metadata).map(e => ({
+    name: e.name,
+    id: prefix ? `${prefix}/${e.name}` : e.name,
+    updated_at: e.updated_at,
+    size: e.metadata?.size || 0,
+    url: supabase.storage.from(BUCKET).getPublicUrl(prefix ? `${prefix}/${e.name}` : e.name).data.publicUrl,
   }))
-  return NextResponse.json({ files })
+  const hasMore = entries.length === limit
+  return NextResponse.json({ folders, files, page, limit, hasMore })
 })
 
 export const POST = withApiMiddleware(async ({ req, headers }) => {

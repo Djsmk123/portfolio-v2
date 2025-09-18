@@ -13,6 +13,7 @@
     SelectItem,
     SelectTrigger,
     SelectValue, } from "@/components/ui/select";
+import { toast } from "sonner";
 
   interface ProjectsManagementProps {
     onDataChange: () => void;
@@ -37,7 +38,10 @@
     }
 
     function deleteProject (id: string) {
-      if (confirm('Are you sure you want to delete this project?')) removeProject(id)
+      if (confirm('Are you sure you want to delete this project?')) {
+        removeProject(id)
+        toast.success('Project deleted successfully')
+      }
     }
 
     async function saveProject () {
@@ -50,7 +54,7 @@
         setEditingProject(null)
         setIsAddingNew(false)
       } catch (e) {
-        alert(e instanceof Error ? e.message : 'Error saving project')
+        toast.error(e instanceof Error ? e.message : 'Error saving project')
       } finally {
         setIsSaving(false)
       }
@@ -58,12 +62,12 @@
 
     return (
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
+          <div className="relative w-full sm:w-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input placeholder="Search projects..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-64" />
+            <Input placeholder="Search projects..." value={query} onChange={e => setQuery(e.target.value)} className="pl-10 w-full sm:w-64" />
           </div>
-          <Button onClick={addNewProject}><Plus className="h-4 w-4 mr-2" />Add New Project</Button>
+          <Button onClick={addNewProject} className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-2" />Add New Project</Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -75,13 +79,14 @@
         </div>
 
         {/* Pagination Controls */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}>Prev</Button>
-            <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))}>Next</Button>
-          
-            <LimitSelect limit={limit} setLimit={setLimit} />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="text-sm text-muted-foreground w-full sm:w-auto">Page {page} of {Math.max(1, Math.ceil(total / limit))} • {total} total</div>
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            <Button variant="outline" onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1} className="w-full sm:w-auto">Prev</Button>
+            <Button variant="outline" onClick={() => setPage(page + 1)} disabled={page >= Math.max(1, Math.ceil(total / limit))} className="w-full sm:w-auto">Next</Button>
+            <div className="w-full sm:w-auto">
+              <LimitSelect limit={limit} setLimit={setLimit} />
+            </div>
           </div>
         </div>
 

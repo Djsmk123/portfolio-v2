@@ -121,75 +121,110 @@ export default function EditExperienceModal ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h:[90vh] overflow-y-auto p-0">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
-          <DialogTitle className="text-2xl font-semibold flex items-center gap-2">
-            <Briefcase className="w-6 h-6 text-primary" />
-            {isNew ? "Add New Experience" : "Edit Experience"}
+      <DialogContent className="w-[95vw] sm:w-full max-w-sm sm:max-w-3xl h-[95vh] sm:h-auto sm:max-h-[90vh] p-0 flex flex-col">
+        {/* Fixed Header */}
+        <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b bg-muted/30 shrink-0">
+          <DialogTitle className="text-lg sm:text-2xl font-semibold flex items-center gap-2">
+            <Briefcase className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <span className="truncate">
+              {isNew ? "Add New Experience" : "Edit Experience"}
+            </span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 py-6 space-y-6">
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardContent className="pt-6 space-y-4">
-              <JobDetails exp={exp} errors={errors} onChange={onChange} setErrors={setErrors} />
-            </CardContent>
-          </Card>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto min-h-0">
+          <div className="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+            {/* Job Details Card */}
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm bg-muted/30">
+              <CardContent className="p-4 sm:pt-6 space-y-4">
+                <JobDetails exp={exp} errors={errors} onChange={onChange} setErrors={setErrors} />
+              </CardContent>
+            </Card>
 
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardContent>
-              <PeriodPicker
-                months={months}
-                years={years}
-                startMonth={startMonth}
-                startYear={startYear}
-                endMonth={endMonth}
-                endYear={endYear}
-                isPresent={isPresent}
-                errors={errors}
-                setStartMonth={setStartMonth}
-                setStartYear={setStartYear}
-                setEndMonth={setEndMonth}
-                setEndYear={setEndYear}
-                setIsPresent={setIsPresent}
-              />
-              {errors.dateRange && (
-                <Alert className="mt-4 border-destructive/20 bg-destructive/10">
-                  <AlertCircle className="h-4 w-4 text-destructive" />
-                  <AlertDescription className="text-destructive">{errors.dateRange}</AlertDescription>
-                </Alert>
-              )}
-              {startMonth && startYear && (
-                <div className="mt-4 p-3 bg-primary/10 rounded-lg">
-                  <p className="text-sm text-primary flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Duration: {formatDateString()}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Period Picker Card */}
+            <Card className="border-0 sm:border shadow-none sm:shadow-sm bg-muted/30">
+              <CardContent className="p-4 sm:p-6">
+                <PeriodPicker
+                  months={months}
+                  years={years}
+                  startMonth={startMonth}
+                  startYear={startYear}
+                  endMonth={endMonth}
+                  endYear={endYear}
+                  isPresent={isPresent}
+                  errors={errors}
+                  setStartMonth={setStartMonth}
+                  setStartYear={setStartYear}
+                  setEndMonth={setEndMonth}
+                  setEndYear={setEndYear}
+                  setIsPresent={setIsPresent}
+                />
+                
+                {/* Date Range Error */}
+                {errors.dateRange && (
+                  <Alert className="mt-4 border-destructive/20 bg-destructive/10">
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                    <AlertDescription className="text-destructive text-sm">
+                      {errors.dateRange}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
+                {/* Duration Preview */}
+                {startMonth && startYear && (
+                  <div className="mt-4 p-3 bg-primary/10 rounded-lg">
+                    <p className="text-sm text-primary flex items-center gap-2">
+                      <Clock className="w-4 h-4 shrink-0" />
+                      <span className="break-words">Duration: {formatDateString()}</span>
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-            <div>
-              <Label htmlFor="is-active" className="text-sm font-medium">Mark as Active</Label>
-              <p className="text-xs text-muted-foreground mt-1">Show this experience prominently on your profile</p>
+            {/* Active Toggle */}
+            <div className="flex items-start sm:items-center justify-between p-4 bg-muted/30 rounded-lg gap-3">
+              <div className="flex-1 min-w-0">
+                <Label htmlFor="is-active" className="text-sm font-medium cursor-pointer">
+                  Mark as Active
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1 break-words">
+                  Show this experience prominently on your profile
+                </p>
+              </div>
+              <div className="shrink-0">
+                <input
+                  id="is-active"
+                  type="checkbox"
+                  className="h-4 w-4 accent-current cursor-pointer"
+                  checked={exp.isActive !== false}
+                  onChange={e => onChange({ ...exp, isActive: e.target.checked })}
+                />
+              </div>
             </div>
-            {/* lightweight toggle using onChange from parent */}
-            <input
-              id="is-active"
-              type="checkbox"
-              className="h-4 w-4 accent-current"
-              checked={exp.isActive !== false}
-              onChange={e => onChange({ ...exp, isActive: e.target.checked })}
-            />
+            
+            {/* Mobile spacing at bottom */}
+            <div className="sm:hidden h-4"></div>
           </div>
         </div>
 
-        <DialogFooter className="px-6 py-4 border-t bg-muted/30">
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving} className="w-full sm:w-auto">Cancel</Button>
-            <Button onClick={handleSave} disabled={isSaving || !isValid} className="w-full sm:w-auto">
+        {/* Fixed Footer */}
+        <DialogFooter className="px-4 sm:px-6 py-3 sm:py-4 border-t bg-muted/30 shrink-0">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 w-full">
+            <Button 
+              variant="outline" 
+              onClick={() => onOpenChange(false)} 
+              disabled={isSaving} 
+              className="w-full sm:w-auto text-sm"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving || !isValid} 
+              className="w-full sm:w-auto text-sm"
+            >
               {isSaving ? 'Saving...' : (isNew ? 'Add Experience' : 'Save Changes')}
             </Button>
           </div>

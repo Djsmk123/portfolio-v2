@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
-import { BootSequence } from "./components/boot-sequence";
 import { InteractiveBg } from "./components/interactive-bg";
 import { AuthProvider } from "@/lib/auth-context";
 import ConditionalNavbar from "./components/conditional-navbar";
@@ -44,11 +43,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${playfair.variable} antialiased`}>
         <AuthProvider>
           <Providers>
-            <BootSequence>
-              <InteractiveBg />
-              <ConditionalNavbar />
-              {children}
-            </BootSequence>
+            <InteractiveBg />
+            <ConditionalNavbar />
+            {children}
           </Providers>
         </AuthProvider>
       </body>

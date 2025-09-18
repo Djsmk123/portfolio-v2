@@ -1,83 +1,48 @@
 "use client"
 
-import { profileStats } from "@/app/data/mock"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
 import { 
   Code2, FileText, GitCommit, Eye, Star, Calendar, Users, Terminal 
 } from "lucide-react"
+import { profileStatsType } from "../data/type"
+import { useAppData } from "@/lib/app-data-context"
+import { Skeleton } from "@/components/ui/skeleton"
 
-const stats = [
-  {
-    label: "Projects",
-    value: profileStats.totalProjects,
-    icon: Code2,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-    description: "Mobile & Web Apps",
-  },
-  {
-    label: "Experience",
-    value: `${profileStats.yearsOfExperience}+`,
-    icon: Calendar,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
-    description: "Years in Tech",
-  },
-  {
-    label: "Articles",
-    value: profileStats.blogsWritten,
-    icon: FileText,
-    color: "text-purple-500",
-    bgColor: "bg-purple-500/10",
-    description: "Blog Posts",
-  },
-  {
-    label: "Commits",
-    value: profileStats.totalCommits.toLocaleString(),
-    icon: GitCommit,
-    color: "text-orange-500",
-    bgColor: "bg-orange-500/10",
-    description: "Git Contributions",
-  },
-  {
-    label: "Views",
-    value: `${(profileStats.websiteViews / 1000).toFixed(1)}K`,
-    icon: Eye,
-    color: "text-cyan-500",
-    bgColor: "bg-cyan-500/10",
-    description: "Website Visitors",
-  },
-  {
-    label: "Stars",
-    value: profileStats.githubStars,
-    icon: Star,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-500/10",
-    description: "GitHub Stars",
-  },
-  {
-    label: "Clients",
-    value: profileStats.clientsServed,
-    icon: Users,
-    color: "text-pink-500",
-    bgColor: "bg-pink-500/10",
-    description: "Happy Clients",
-  },
-  {
-    label: "Lines of Code",
-    value: `${(profileStats.linesOfCode / 1000).toFixed(0)}K`,
-    icon: Terminal,
-    color: "text-red-500",
-    bgColor: "bg-red-500/10",
-    description: "Code Written",
-  },
-]
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Experience: Calendar,
+  Projects: Code2,
+  Articles: FileText,
+  Commits: GitCommit,
+  Views: Eye,
+  Stars: Star,
+  Users: Users,
+  Loc: Terminal,
+  LOC: Terminal,
+  Clients: Users,
+}
 
-// Counter hook
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 30, scale: 0.9, rotateX: -10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    rotateX: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+}
+
+// CountUp hook
 function useCountUp(end: number, duration = 1.2) {
   const [count, setCount] = useState(0)
   useEffect(() => {
+    if (!end) return
     let start = 0
     const step = () => {
       start += 16 / (duration * 1000)
@@ -90,30 +55,23 @@ function useCountUp(end: number, duration = 1.2) {
   return count
 }
 
-// StatItem component to properly use hooks
-function StatItem({ 
-  stat, 
-  Icon, 
-  endValue, 
-  item 
-}: { 
-  stat: typeof stats[0]
-  Icon: React.ComponentType<{ className?: string }>
-  endValue: number | undefined
-  item: { hidden: object; show: object }
-}) {
-  const count = useCountUp(endValue || 0)
-  const displayValue = endValue ? count : stat.value
+function StatItem({ stat }: { stat: profileStatsType }) {
+  const Icon = ICON_MAP[stat.label] || Calendar
+  const match = stat.value.toString().match(/^(\d+)(.*)$/)
+  const numericValue = match ? parseInt(match[1], 10) : NaN
+  const suffix = match ? match[2] : ""
+  const hasNumber = !isNaN(numericValue)
+  const count = useCountUp(hasNumber ? numericValue : 0)
+  const displayValue = hasNumber ? `${count}${suffix}` : stat.value
 
   return (
     <motion.div
       variants={{item}}
       whileHover={{ scale: 1.08, rotateY: 3, rotateX: -3 }}
-      transition={{ type: 'spring', stiffness: 250, damping: 20 }}
-      className='group relative min-w-0'
+      transition={{ type: "spring", stiffness: 250, damping: 20 }}
+      className="group relative min-w-0"
     >
       <div className="flex flex-col items-center p-3 rounded-lg border bg-background/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:border-primary/40 w-full">
-        {/* Pulsing Icon */}
         <motion.div
           className={`p-3 rounded-full ${stat.bgColor} mb-2`}
           animate={{ scale: [1, 1.15, 1] }}
@@ -121,7 +79,6 @@ function StatItem({
         >
           <Icon className={`h-5 w-5 ${stat.color}`} />
         </motion.div>
-
         <div className="text-center w-full min-w-0">
           <div className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
             {displayValue}
@@ -131,38 +88,14 @@ function StatItem({
           </div>
         </div>
       </div>
-
-      {/* Tooltip */}
-      <motion.div
-        className="absolute -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10"
-        initial={{ y: 10 }}
-        animate={{ y: 0 }}
-      >
-        <div className="bg-popover/90 text-popover-foreground text-xs px-3 py-1.5 rounded-md shadow-lg border whitespace-nowrap backdrop-blur-sm">
-          {stat.description}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-popover/90 border-r border-b" />
-        </div>
-      </motion.div>
     </motion.div>
   )
 }
 
-export default function Stats() {
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } },
-  }
+// Skeleton while loading
 
-  const item = {
-    hidden: { opacity: 0, y: 30, scale: 0.9, rotateX: -10 },
-    show: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      rotateX: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
-  }
+export default function Stats() {
+  const { stats } = useAppData()
 
   return (
     <motion.div
@@ -172,21 +105,9 @@ export default function Stats() {
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
     >
-      {stats.map((stat) => {
-        const Icon = stat.icon
-        const isNumber = !isNaN(Number(stat.value.toString().replace(/[^0-9]/g, "")))
-        const endValue = isNumber ? parseInt(stat.value.toString()) : undefined
-
-        return (
-          <StatItem
-            key={stat.label}
-            stat={stat}
-            Icon={Icon}
-            endValue={endValue}
-            item={item}
-          />
-        )
-      })}
+      {stats.length === 0
+        ? Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} />)
+        : stats.map((stat) => <StatItem key={stat.label} stat={stat} />)}
     </motion.div>
   )
 }

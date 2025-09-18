@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
-import { getAdminUser } from '@/lib/localstorage'
+import { adminFetch } from '@/lib/admin-fetch'
 
 export type Skill = {
   id: string
@@ -33,17 +33,7 @@ export function useSkills () {
       setIsFetching(true)
       setError(null)
       try {
-        const token = getAdminUser()?.access_token
-        const params = new URLSearchParams({ page: String(page), limit: String(limit) })
-        if (query.trim()) params.set('search', query.trim())
-        if (category !== 'all') params.set('category', category)
-        const res = await fetch(`/api/admin/skills?${params.toString()}`, {
-          credentials: 'include',
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          signal: controller.signal
-        })
-        if (!res.ok) throw new Error(`Failed to load skills (${res.status})`)
-        const data = await res.json()
+        const data = await adminFetch<any>('/api/admin/skills', { params: { page, limit, search: query.trim() || undefined, category: category !== 'all' ? category : undefined }, signal: controller.signal })
         const list: Skill[] = Array.isArray(data.skills)
           ? data.skills.map((s: any) => ({
               id: s.id,
@@ -77,12 +67,9 @@ export function useSkills () {
     if (savingRef.current) return
     savingRef.current = true
     try {
-      const token = getAdminUser()?.access_token
-      const res = await fetch('/api/admin/skills', {
+      const res = await adminFetch<any>('/api/admin/skills', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
+        body: {
           name: draft.name,
           category: draft.category,
           level: draft.level,
@@ -90,10 +77,9 @@ export function useSkills () {
           icon: draft.icon ?? null,
           color: draft.color ?? null,
           is_active: draft.is_active ?? true
-        })
+        }
       })
-      if (!res.ok) throw new Error('Failed to create skill')
-      const { skill } = await res.json()
+      const { skill } = res
       const created: Skill = {
         id: skill.id,
         name: skill.name,
@@ -112,12 +98,9 @@ export function useSkills () {
   }
 
   async function updateSkill (editing: Skill) {
-    const token = getAdminUser()?.access_token
-    const res = await fetch('/api/admin/skills', {
+    const res = await adminFetch<any>('/api/admin/skills', {
       method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify({
+      body: {
         id: editing.id,
         name: editing.name,
         category: editing.category,
@@ -126,10 +109,9 @@ export function useSkills () {
         icon: editing.icon ?? null,
         color: editing.color ?? null,
         is_active: editing.is_active ?? true
-      })
+      }
     })
-    if (!res.ok) throw new Error('Failed to update skill')
-    const { skill } = await res.json()
+    const { skill } = res
     const updated: Skill = {
       id: skill.id,
       name: skill.name,
@@ -144,13 +126,7 @@ export function useSkills () {
   }
 
   async function removeSkill (id: string) {
-    const token = getAdminUser()?.access_token
-    const res = await fetch(`/api/admin/skills?id=${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined
-    })
-    if (!res.ok && res.status !== 204) throw new Error('Failed to delete skill')
+    await adminFetch('/api/admin/skills', { method: 'DELETE', params: { id } })
     setSkills(prev => prev.filter(s => s.id !== id))
   }
 

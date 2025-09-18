@@ -1,3 +1,5 @@
+import { profileStatsType } from "@/app/data/type"
+
 enum Environment {
     DEVELOPMENT = 'development',
     PRODUCTION = 'production',
@@ -11,6 +13,9 @@ export const config = {
     isTest: process.env.NODE_ENV === Environment.TEST,
     isProd: process.env.NODE_ENV === Environment.PRODUCTION,
     bucket: process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'portfolio',
+    githubUsername: process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'djsmk123',
+    devToUsername: process.env.NEXT_PUBLIC_DEV_TO_USERNAME || 'djsmk123',
+    githubToken: process.env.NEXT_PUBLIC_GITHUB_TOKEN || '',
 }
 
 if (!config.supbaseUrl || !config.supbaseAnonKey) { 
