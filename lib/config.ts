@@ -1,5 +1,3 @@
-import { profileStatsType } from "@/app/data/type"
-
 enum Environment {
     DEVELOPMENT = 'development',
     PRODUCTION = 'production',

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'  
+import {  NextResponse } from 'next/server'  
 import { withApiMiddlewareWithoutAuth } from '@/lib/api-middleware'
 import { supabase } from '@/lib/supabase'
 import { getTableName } from '@/lib/supabase'
@@ -22,7 +22,12 @@ export const GET = withApiMiddlewareWithoutAuth(async ({req}) => {
   })
   const offset = (page - 1) * limit 
   //fetch data
-  const { data, error, count } = await supabase.from(TABLE).select('*', { count: 'exact' }).eq('is_active', true).range(offset, offset + limit - 1)
+  const { data, error, count } = await supabase
+    .from(TABLE)
+    .select('*', { count: 'exact' })
+    .eq('is_active', true)
+    .range(offset, offset + limit - 1)
+    .order('date', { ascending: false })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   //map to db
   const mappedData = data.map(fromDb)

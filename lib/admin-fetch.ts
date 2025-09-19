@@ -8,7 +8,7 @@ type FetchOptions = {
   retries?: number
 }
 
-const cache = new Map<string, any>()
+const cache = new Map<string, unknown>()
 
 function buildUrl (url: string, params?: FetchOptions['params']): string {
   if (!params) return url
@@ -25,7 +25,7 @@ export async function adminFetch<T> (url: string, opts: FetchOptions = {}): Prom
   const method = opts.method || 'GET'
   const fullUrl = buildUrl(url, opts.params)
   const cacheKey = method === 'GET' ? fullUrl : ''
-  if (cacheKey && cache.has(cacheKey)) return cache.get(cacheKey)
+  if (cacheKey && cache.has(cacheKey)) return cache.get(cacheKey) as T
 
   const controller = new AbortController()
   const signal = opts.signal || controller.signal
@@ -36,7 +36,7 @@ export async function adminFetch<T> (url: string, opts: FetchOptions = {}): Prom
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
 
   let attempt = 0
-  let lastErr: any
+  let lastErr: unknown
   while (attempt <= retries) {
     try {
       const res = await fetch(fullUrl, {
@@ -66,5 +66,3 @@ export function clearAdminFetchCache (prefix?: string) {
   if (!prefix) return cache.clear()
   for (const key of [...cache.keys()]) if (key.startsWith(prefix)) cache.delete(key)
 }
-
-

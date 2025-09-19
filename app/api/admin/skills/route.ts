@@ -5,6 +5,30 @@ import { z } from 'zod'
 
 const TABLE = getTableName('skills')
 
+type DbSkill = {
+  id: string
+  name: string
+  category: string
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
+  years_of_experience?: number | null
+  yearsOfExperience?: number | null
+  icon?: string | null
+  color?: string | null
+  is_active?: boolean | null
+  updated_at?: string | null
+}
+
+const normalizeSkill = (row: DbSkill) => ({
+  id: row.id,
+  name: row.name,
+  category: row.category,
+  level: row.level,
+  yearsOfExperience: (row.yearsOfExperience ?? row.years_of_experience ?? 0) as number,
+  icon: row.icon ?? null,
+  color: row.color ?? null,
+  is_active: row.is_active ?? true,
+})
+
 const skillSchema = z.object({
   name: z.string().min(1),
   category: z.string().min(1),
@@ -46,7 +70,8 @@ export const GET = withApiMiddleware(async ({ req }) => {
 
   const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ skills: data ?? [], total: count ?? 0, page, limit })
+  const skills = Array.isArray(data) ? (data as DbSkill[]).map(normalizeSkill) : []
+  return NextResponse.json({ skills, total: count ?? 0, page, limit })
 })
 
 export const POST = withApiMiddleware(async ({ json }) => {
@@ -64,7 +89,7 @@ export const POST = withApiMiddleware(async ({ json }) => {
   }
   const { data, error } = await supabase.from(TABLE).insert(payload).select('*').single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ skill: data }, { status: 201 })
+  return NextResponse.json({ skill: normalizeSkill(data as DbSkill) }, { status: 201 })
 })
 
 export const PATCH = withApiMiddleware(async ({ json }) => {
@@ -83,7 +108,7 @@ export const PATCH = withApiMiddleware(async ({ json }) => {
   }
   const { data, error } = await supabase.from(TABLE).update(payload).eq('id', parsed.data.id).select('*').single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ skill: data }, { status: 200 })
+  return NextResponse.json({ skill: normalizeSkill(data as DbSkill) }, { status: 200 })
 })
 
 export const DELETE = withApiMiddleware(async ({ req }) => {

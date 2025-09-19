@@ -59,9 +59,6 @@ export default function AdminPanel() {
     setUnsavedByTab(prev => ({ ...prev, resume: true }))
   }, [])
 
-  const markSocialDirty = useCallback(() => {
-    setUnsavedByTab(prev => ({ ...prev, social: true }))
-  }, [])
 
   const handleSaveCurrent = async () => {
     setIsLoading(true)

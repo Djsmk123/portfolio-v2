@@ -9,6 +9,8 @@ import type { projectType } from '@/app/data/mock'
 import { Plus, Trash2 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import Image from 'next/image'
+import { Badge } from '@/components/ui/badge'
+import { X } from 'lucide-react'
 
 type Props = {
   project: projectType
@@ -19,13 +21,13 @@ type Props = {
   isSaving: boolean
 }
 
-export function EditProjectModal ({ project, isNew, onChange, onCancel, onSave, isSaving }: Props) {
+export function EditProjectModal({ project, isNew, onChange, onCancel, onSave, isSaving }: Props) {
   const valid =
     typeof project.name === 'string' &&
     project.name.trim() &&
     typeof project.desc === 'string' &&
     project.desc.trim() &&
-    Array.isArray(project.tags) &&    
+    Array.isArray(project.tags) &&
     project.tags.length > 0 &&
     Array.isArray(project.images) &&
     project.images.length > 0
@@ -58,8 +60,46 @@ export function EditProjectModal ({ project, isNew, onChange, onCancel, onSave, 
           </div>
 
           <div>
-            <Label htmlFor="tags">Tags (comma-separated)</Label>
-            <Input id="tags" value={project.tags.join(', ')} onChange={e => onChange({ ...project, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })} />
+            <Label htmlFor="tags(Comma separated)" className='mb-2'>Tags</Label>
+            <div className="flex flex-wrap gap-2 p-2 border rounded-md">
+              {project.tags.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="flex items-center gap-1 px-2 py-1"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onChange({
+                        ...project,
+                        tags: project.tags.filter((_, i) => i !== index),
+                      })
+                    }
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+              <Input
+                placeholder="Add tag"
+                className="flex-1 border-none shadow-none focus-visible:ring-0 pl-2 m-0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault()
+                    const input = e.currentTarget
+                    if (input.value.trim()) {
+                      onChange({
+                        ...project,
+                        tags: [...project.tags, input.value.trim()],
+                      })
+                      input.value = ""
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div>
@@ -69,7 +109,7 @@ export function EditProjectModal ({ project, isNew, onChange, onCancel, onSave, 
                 <div key={index} className="flex items-center gap-2">
                   <div className="w-16 h-16 relative flex-shrink-0">
                     <Image
-                    
+
                       src={image}
                       alt={`Project image ${index + 1}`}
                       fill

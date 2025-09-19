@@ -37,6 +37,7 @@ function fromPgRangeToUi (range: string): string {
   return `${startMonth} - ${endMonth}`
 }
 
+
 export const fromDb = (row: ExperienceRow): experienceType => ({
   id: row.id,
   title: row.title,
@@ -46,8 +47,8 @@ export const fromDb = (row: ExperienceRow): experienceType => ({
   description: row.description,
   type: row.type as unknown as ExperienceType,
   isActive: (row.is_active ?? row.isActive) !== false,
-  createdAt: (row as any).createdAt ?? row.created_at,
-  updatedAt: (row as any).updatedAt ?? row.updated_at
+  createdAt: ((row as unknown as { createdAt?: string | number | Date }).createdAt ?? row.created_at) as string | number | Date,
+  updatedAt: ((row as unknown as { updatedAt?: string | number | Date }).updatedAt ?? row.updated_at) as string | number | Date
 })
 
 export const toDb = (e: experienceType) => ({

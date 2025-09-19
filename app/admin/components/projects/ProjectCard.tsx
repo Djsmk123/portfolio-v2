@@ -22,22 +22,22 @@ export function AdminProjectCard({
   const [showImageDialog, setShowImageDialog] = useState(false)
   const [copiedId, setCopiedId] = useState(false)
 
-  const { 
-    id, 
-    name, 
-    desc, 
-    tags, 
-    images, 
+  const {
+    id,
+    name,
+    desc,
+    tags,
+    images,
     links = {
       playstore: '',
       appstore: '',
       website: '',
-    }, 
-    github, 
-    org, 
-    createdAt, 
-    updatedAt, 
-    isActive 
+    },
+    github,
+    org,
+    createdAt,
+    updatedAt,
+    isActive
   } = project
 
   const prettyDate = (t?: number | string | Date) => {
@@ -73,15 +73,21 @@ export function AdminProjectCard({
 
     return (
       <div className="relative group">
-        <div className="relative w-full h-32 rounded-lg overflow-hidden bg-muted">
+        <div
+          className="relative aspect-video rounded-lg overflow-hidden bg-muted cursor-zoom-in"
+          onClick={() => setShowImageDialog(true)}
+          role="button"
+          aria-label="Open image gallery"
+        >
           <Image
             src={images[currentImageIndex]}
             alt={`${name} - Image ${currentImageIndex + 1}`}
             fill
             className="object-cover transition-all duration-300"
+
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          
+
           {/* Image Counter */}
           <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs">
             {currentImageIndex + 1} / {imagesCount}
@@ -91,14 +97,14 @@ export function AdminProjectCard({
           {imagesCount > 1 && (
             <>
               <button
-                onClick={prevImage}
+                onClick={(e) => { e.stopPropagation(); prevImage() }}
                 className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
-                onClick={nextImage}
+                onClick={(e) => { e.stopPropagation(); nextImage() }}
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 aria-label="Next image"
               >
@@ -110,7 +116,7 @@ export function AdminProjectCard({
           {/* View All Images Button */}
           {imagesCount > 1 && (
             <button
-              onClick={() => setShowImageDialog(true)}
+              onClick={(e) => { e.stopPropagation(); setShowImageDialog(true) }}
               className="absolute bottom-2 left-2 bg-black/70 hover:bg-black/80 text-white px-2 py-1 rounded-md text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <Eye className="h-3 w-3" />
@@ -126,11 +132,10 @@ export function AdminProjectCard({
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentImageIndex 
-                    ? 'bg-primary' 
+                className={`w-2 h-2 rounded-full transition-colors ${index === currentImageIndex
+                    ? 'bg-primary'
                     : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                }`}
+                  }`}
                 aria-label={`View image ${index + 1}`}
               />
             ))}
@@ -151,22 +156,34 @@ export function AdminProjectCard({
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {/* Organization Avatar */}
               {org?.logo ? (
-                <Avatar className="h-10 w-10 ring-2 ring-background">
+                <Avatar className="h-10 w-10 ring-2 ring-background shrink-0">
                   <AvatarImage src={org.logo} alt={org.name || 'org logo'} />
                   <AvatarFallback className="text-sm font-medium">
                     {(org.name || name || 'P').slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center text-sm font-medium text-primary border-2 border-background">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center text-sm font-medium text-primary border-2 border-background shrink-0">
                   {(org?.name || name || 'P').slice(0, 2).toUpperCase()}
                 </div>
               )}
 
-              <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg font-semibold truncate">{name}</CardTitle>
+              <div className="min-w-0 flex-1 flex flex-col">
+                <CardTitle
+                  className="text-lg font-semibold truncate max-w-full block"
+                  style={{ wordBreak: 'break-all' }}
+                  title={name}
+                >
+                  {name}
+                </CardTitle>
                 {org?.name && (
-                  <p className="text-sm text-muted-foreground truncate">{org.name}</p>
+                  <p
+                    className="text-sm text-muted-foreground truncate max-w-full block"
+                    style={{ wordBreak: 'break-all' }}
+                    title={org.name}
+                  >
+                    {org.name}
+                  </p>
                 )}
               </div>
             </div>
@@ -209,16 +226,16 @@ export function AdminProjectCard({
 
           {/* Status Badge */}
           <div className="flex items-center justify-between mt-3">
-            <Badge 
+            <Badge
               variant={active ? "default" : "secondary"}
-              className={`${active 
-                ? 'bg-green-100 text-green-800 hover:bg-green-100' 
+              className={`${active
+                ? 'bg-green-100 text-green-800 hover:bg-green-100'
                 : 'bg-gray-100 text-gray-800 hover:bg-gray-100'
-              }`}
+                }`}
             >
               {active ? 'Active' : 'Inactive'}
             </Badge>
-            
+
             <div className="flex items-center gap-2">
               {github && (
                 <TooltipProvider>
@@ -284,9 +301,9 @@ export function AdminProjectCard({
               <span>Updated: {prettyDate(updatedAt)}</span>
             </div>
             {org?.url && (
-              <a 
-                href={org.url} 
-                target="_blank" 
+              <a
+                href={org.url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline"
               >
@@ -297,55 +314,55 @@ export function AdminProjectCard({
         </CardContent>
 
         <CardFooter className="pt-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
-  {/* External Links */}
-  <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-    {links.website && (
-      <Button size="sm" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
-        <a href={links.website} target="_blank" rel="noopener noreferrer">
-          <span className="truncate">Visit Site</span>
-        </a>
-      </Button>
-    )}
-    {links.playstore && (
-      <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
-        <a href={links.playstore} target="_blank" rel="noopener noreferrer">
-          <span className="truncate">Play Store</span>
-        </a>
-      </Button>
-    )}
-    {links.appstore && (
-      <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
-        <a href={links.appstore} target="_blank" rel="noopener noreferrer">
-          <span className="truncate">App Store</span>
-        </a>
-      </Button>
-    )}
-  </div>
-
-  {/* Copy ID Button */}
-  <div className="w-full sm:w-auto flex justify-end sm:justify-center">
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            onClick={handleCopyId}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-muted shrink-0"
-          >
-            <span className="font-mono">{id.slice(0, 8)}...</span>
-            {copiedId ? (
-              <span className="text-green-600 font-medium">✓</span>
-            ) : (
-              <Copy className="h-3 w-3" />
+          {/* External Links */}
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            {links.website && (
+              <Button size="sm" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+                <a href={links.website} target="_blank" rel="noopener noreferrer">
+                  <span className="truncate">Visit Site</span>
+                </a>
+              </Button>
             )}
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>
-          {copiedId ? 'Copied!' : 'Copy full ID'}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  </div>
-</CardFooter>
+            {links.playstore && (
+              <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+                <a href={links.playstore} target="_blank" rel="noopener noreferrer">
+                  <span className="truncate">Play Store</span>
+                </a>
+              </Button>
+            )}
+            {links.appstore && (
+              <Button size="sm" variant="outline" asChild className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm">
+                <a href={links.appstore} target="_blank" rel="noopener noreferrer">
+                  <span className="truncate">App Store</span>
+                </a>
+              </Button>
+            )}
+          </div>
+
+          {/* Copy ID Button */}
+          <div className="w-full sm:w-auto flex justify-end sm:justify-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleCopyId}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1 px-2 py-1 rounded hover:bg-muted shrink-0"
+                  >
+                    <span className="font-mono">{id.slice(0, 8)}...</span>
+                    {copiedId ? (
+                      <span className="text-green-600 font-medium">✓</span>
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {copiedId ? 'Copied!' : 'Copy full ID'}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </CardFooter>
       </Card>
 
       {/* Image Gallery Dialog */}
@@ -364,7 +381,7 @@ export function AdminProjectCard({
               </Button>
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto pr-2">
             {imagesArray.map((src, index) => (
               <div

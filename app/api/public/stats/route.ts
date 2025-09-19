@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { profileStatsType } from "@/app/data/type"
-import { postType } from "@/app/data/mock"
 import { withApiMiddlewareWithoutAuth } from "@/lib/api-middleware"
 // Next.js API handler
 export const GET = withApiMiddlewareWithoutAuth(async () => {
@@ -61,8 +60,11 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
     ]
 
     return NextResponse.json(data)
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 })
+    }
+    return NextResponse.json({ error: 'Unknown error' }, { status: 500 })
   }
 })
 

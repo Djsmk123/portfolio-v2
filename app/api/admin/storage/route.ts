@@ -31,7 +31,7 @@ export const GET = withApiMiddleware(async ({ req }) => {
   return NextResponse.json({ folders, files, page, limit, hasMore })
 })
 
-export const POST = withApiMiddleware(async ({ req, headers }) => {
+export const POST = withApiMiddleware(async ({ req }) => {
   const contentType = req.headers.get('content-type') || ''
   if (!contentType.startsWith('multipart/form-data')) return NextResponse.json({ error: 'Invalid content type' }, { status: 400 })
   const form = await req.formData()
@@ -45,7 +45,7 @@ export const POST = withApiMiddleware(async ({ req, headers }) => {
   return NextResponse.json({ key: data?.path || key, url })
 })
 
-export const DELETE = withApiMiddleware(async ({ req, headers }) => {
+export const DELETE = withApiMiddleware(async ({ req }) => {
   const { searchParams } = new URL(req.url)
   const id = searchParams.get('id') || ''
   const parsed = z.object({ id: z.string().min(1) }).safeParse({ id })

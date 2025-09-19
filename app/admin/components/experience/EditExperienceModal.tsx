@@ -11,11 +11,12 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Briefcase, Clock, AlertCircle } from "lucide-react"
+import {  Briefcase, Clock, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { experienceType } from "@/app/data/mock"
+import { experienceType, ExperienceType } from "@/app/data/mock"
 import JobDetails from "./JobDetails"
 import PeriodPicker from "./PeriodPicker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export type Props = {
 exp: experienceType
@@ -97,6 +98,7 @@ export default function EditExperienceModal ({
     if (!exp.company.trim()) next.company = "Company name is required"
     if (!exp.location.trim()) next.location = "Location is required"
     if (!exp.description.trim()) next.description = "Description is required"
+    if (!exp.type) next.type = "Employment type is required"
     if (!startMonth || !startYear) next.startDate = "Start date is required"
     if (!isPresent && (!endMonth || !endYear)) next.endDate = "End date is required (or mark as Present)"
     if (startYear && startMonth && endYear && endMonth && !isPresent) {
@@ -109,7 +111,7 @@ export default function EditExperienceModal ({
   }, [exp, startMonth, startYear, endMonth, endYear, isPresent])
 
   const isValid = useMemo(() => (
-    exp.title.trim() && exp.company.trim() && exp.location.trim() && exp.description.trim() &&
+    exp.title.trim() && exp.company.trim() && exp.location.trim() && exp.description.trim() && exp.type &&
     startMonth && startYear && (isPresent || (endMonth && endYear))
   ), [exp, startMonth, startYear, endMonth, endYear, isPresent])
 
@@ -139,6 +141,26 @@ export default function EditExperienceModal ({
             <Card className="border-0 sm:border shadow-none sm:shadow-sm bg-muted/30">
               <CardContent className="p-4 sm:pt-6 space-y-4">
                 <JobDetails exp={exp} errors={errors} onChange={onChange} setErrors={setErrors} />
+              {/* Employment Type */}
+              <div className="space-y-2">
+                <Label htmlFor="employment-type" className="text-sm font-medium">Employment Type</Label>
+                <Select
+                  value={exp.type as unknown as string}
+                  onValueChange={(v) => onChange({ ...exp, type: v as unknown as ExperienceType })}
+                >
+                  <SelectTrigger id="employment-type" className="w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ExperienceType.FullTime}>Full-time</SelectItem>
+                    <SelectItem value={ExperienceType.Internship}>Internship</SelectItem>
+                    <SelectItem value={ExperienceType.Contract}>Contract</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.type && (
+                  <p className="text-xs text-destructive">{errors.type}</p>
+                )}
+              </div>
               </CardContent>
             </Card>
 

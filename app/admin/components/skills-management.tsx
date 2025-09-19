@@ -12,7 +12,7 @@ import { useSkills, type Skill } from "./skills/use-skills";
 interface Props { onDataChange: () => void }
 
 export default function SkillsManagement ({ onDataChange }: Props) {
-  const { skills, isFetching, error, page, limit, total, setPage, setLimit, query, setQuery, category, setCategory, createSkill, updateSkill, removeSkill } = useSkills()
+  const { skills, isFetching, error, page, limit, total, setPage, setLimit, query, setQuery, createSkill, updateSkill, removeSkill } = useSkills()
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editing, setEditing] = useState<Skill | null>(null)
   const [isSaving, setIsSaving] = useState(false)

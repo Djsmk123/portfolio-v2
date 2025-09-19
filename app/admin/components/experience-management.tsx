@@ -12,7 +12,7 @@ import EditExperienceModal from "./experience/EditExperienceModal";
 interface ExperienceManagementProps { onDataChange: () => void }
 
 export default function ExperienceManagement ({ onDataChange }: ExperienceManagementProps) {
-  const { items, isFetching, error, page, limit, total, setPage, setLimit, query, setQuery, type, setType, activeType, setActiveType, createExperience, updateExperience, removeExperience } = useExperiences()
+  const { items, isFetching, error, page, limit, total, setPage, setLimit, query, setQuery, createExperience, updateExperience, removeExperience } = useExperiences()
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [editing, setEditing] = useState<experienceType | null>(null)
   const [isSaving, setIsSaving] = useState(false)

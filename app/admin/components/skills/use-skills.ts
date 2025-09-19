@@ -14,6 +14,31 @@ export type Skill = {
   is_active?: boolean
 }
 
+type ApiSkill = {
+  id: string
+  name: string
+  category: string
+  level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
+  yearsOfExperience?: number | null
+  years_of_experience?: number | null
+  icon?: string | null
+  color?: string | null
+  is_active?: boolean | null
+}
+
+function mapApiSkill (s: ApiSkill): Skill {
+  return {
+    id: s.id,
+    name: s.name,
+    category: s.category,
+    level: s.level,
+    yearsOfExperience: s.yearsOfExperience ?? s.years_of_experience ?? 0,
+    icon: s.icon || undefined,
+    color: s.color || undefined,
+    is_active: s.is_active !== false,
+  }
+}
+
 export function useSkills () {
   const [skills, setSkills] = useState<Skill[]>([])
   const [isFetching, setIsFetching] = useState(false)
@@ -33,18 +58,9 @@ export function useSkills () {
       setIsFetching(true)
       setError(null)
       try {
-        const data = await adminFetch<any>('/api/admin/skills', { params: { page, limit, search: query.trim() || undefined, category: category !== 'all' ? category : undefined }, signal: controller.signal })
+        const data = await adminFetch<{ skills: ApiSkill[]; total: number }>('/api/admin/skills', { params: { page, limit, search: query.trim() || undefined, category: category !== 'all' ? category : undefined }, signal: controller.signal })
         const list: Skill[] = Array.isArray(data.skills)
-          ? data.skills.map((s: any) => ({
-              id: s.id,
-              name: s.name,
-              category: s.category,
-              level: s.level,
-              yearsOfExperience: s.years_of_experience ?? s.yearsOfExperience ?? 0,
-              icon: s.icon || undefined,
-              color: s.color || undefined,
-              is_active: s.is_active !== false
-            }))
+          ? data.skills.map((s) => mapApiSkill(s))
           : []
         if (!cancelled) {
           setSkills(list)
@@ -67,7 +83,7 @@ export function useSkills () {
     if (savingRef.current) return
     savingRef.current = true
     try {
-      const res = await adminFetch<any>('/api/admin/skills', {
+      const res = await adminFetch<{ skill: ApiSkill }>('/api/admin/skills', {
         method: 'POST',
         body: {
           name: draft.name,
@@ -80,16 +96,7 @@ export function useSkills () {
         }
       })
       const { skill } = res
-      const created: Skill = {
-        id: skill.id,
-        name: skill.name,
-        category: skill.category,
-        level: skill.level,
-        yearsOfExperience: skill.years_of_experience ?? 0,
-        icon: skill.icon || undefined,
-        color: skill.color || undefined,
-        is_active: skill.is_active !== false
-      }
+      const created: Skill = mapApiSkill(skill)
       setSkills(prev => [created, ...prev])
       return created
     } finally {
@@ -98,7 +105,7 @@ export function useSkills () {
   }
 
   async function updateSkill (editing: Skill) {
-    const res = await adminFetch<any>('/api/admin/skills', {
+    const res = await adminFetch<{ skill: ApiSkill }>('/api/admin/skills', {
       method: 'PATCH',
       body: {
         id: editing.id,
@@ -112,16 +119,7 @@ export function useSkills () {
       }
     })
     const { skill } = res
-    const updated: Skill = {
-      id: skill.id,
-      name: skill.name,
-      category: skill.category,
-      level: skill.level,
-      yearsOfExperience: skill.years_of_experience ?? 0,
-      icon: skill.icon || undefined,
-      color: skill.color || undefined,
-      is_active: skill.is_active !== false
-    }
+    const updated: Skill = mapApiSkill(skill)
     setSkills(prev => prev.map(s => (s.id === updated.id ? updated : s)))
   }
 

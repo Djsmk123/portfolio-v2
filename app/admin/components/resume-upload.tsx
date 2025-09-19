@@ -12,9 +12,9 @@ import {
   Trash2,
   Eye,
   CheckCircle,
-  AlertCircle,
   MoreVertical
 } from "lucide-react";
+import { Alert } from "@/components/ui/alert";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +39,7 @@ interface ResumeUploadProps {
   onDataChange: () => void;
 }
 
-export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
+export default function ResumeUpload({ }: ResumeUploadProps) {
   const [resumes, setResumes] = useState<ResumeData[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [newUrl, setNewUrl] = useState("");
@@ -65,7 +65,18 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
         if (!res.ok) throw new Error(`Failed to load resumes (${res.status})`)
         const data = await res.json()
         if (!cancelled) {
-          setResumes((data.resumes || []).map((r: any) => ({
+          setResumes((data.resumes || []).map((r: {
+            id: string;
+            name: string;
+            url: string;
+            size: number;
+            uploadedAt: string;
+            isActive: boolean;
+            isDefault: boolean;
+            created_at: string;
+            is_active: boolean;
+            is_default: boolean;
+          }) => ({
             id: r.id,
             name: r.name,
             url: r.url,
@@ -157,6 +168,14 @@ export default function ResumeUpload({ onDataChange }: ResumeUploadProps) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
+  //error 
+  if(error) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <Alert variant="destructive">{error}</Alert>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">

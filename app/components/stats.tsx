@@ -16,9 +16,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Commits: GitCommit,
   Views: Eye,
   Stars: Star,
-  Users: Users,
   Loc: Terminal,
-  LOC: Terminal,
   Clients: Users,
 }
 
@@ -95,7 +93,12 @@ function StatItem({ stat }: { stat: profileStatsType }) {
 // Skeleton while loading
 
 export default function Stats() {
-  const { stats } = useAppData()
+  const { stats,blogs } = useAppData()
+
+  //assign blog length to stats
+  stats.forEach((stat) => {
+    if (stat.label === "Articles") stat.value = blogs.length
+  })
 
   return (
     <motion.div

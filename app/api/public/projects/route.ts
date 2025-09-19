@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'  
+import {  NextResponse } from 'next/server'  
 import { withApiMiddlewareWithoutAuth } from '@/lib/api-middleware'
 import { supabase } from '@/lib/supabase'
 import { getTableName } from '@/lib/supabase'
-import { fromDb } from '@/app/admin/components/projects/utils'
 import {
   z
 } from 'zod'
@@ -25,7 +24,7 @@ export const GET = withApiMiddlewareWithoutAuth(async ({req}) => {
     const offset = (page - 1) * limit
 
     // Build query dynamically
-    let query = supabase
+    const query = supabase
       .from(TABLE)
       .select("*", { count: "exact" })
       .order("updated_at", { ascending: false })

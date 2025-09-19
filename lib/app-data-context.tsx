@@ -8,9 +8,15 @@ type AppData = {
   skills: skillType[]
   stats: profileStatsType[]
   thought: thoughtOfTheDayType | null,
-  projects: projectType[]
+  projectsData: {
+    projects: projectType[]
+    total: number
+  }
   blogs: postType[]
-  experience: experienceType[]
+  expData: {
+    experiences: experienceType[]
+    total: number
+  }
 }
 
 const AppDataContext = createContext<AppData | null>(null)

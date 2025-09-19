@@ -53,22 +53,24 @@ export const ProjectBanner = memo(function ProjectBanner({
           <motion.div
             key={index + "-fg"}
             className="relative z-10 flex h-full w-full items-center justify-center"
-            initial={{ opacity: 0, scale: 1.05 }}
+            initial={{ opacity: 0, scale: 1.02 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 1.0, ease: "easeInOut" }}
           >
             <ZoomableImage
               src={currentSrc}
               alt={name}
-              className="h-full w-auto object-contain transition-transform duration-500 group-hover:scale-105"
-              role="button"
+              className="relative h-full w-full"
+              fillMode
+              disableDialog
+              role="img"
             />
           </motion.div>
         </AnimatePresence>
   
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+        {/* Gradient overlay (non-interactive) */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
       </div>
     );
   });

@@ -1,6 +1,3 @@
-import { skillType } from "@/app/data/mock"
-import { fetchSkills } from "@/lib/client-fetch"
-import { useEffect, useState } from "react"
 import { Section } from "../section"
 import { Header } from "@/app/home-sections"
 import { motion } from "framer-motion"

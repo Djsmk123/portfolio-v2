@@ -2,7 +2,6 @@
 
 import { useContext } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import GitHubCalendar from "react-github-calendar"
 import { Section, LargeTitle, SmallTitle } from "./components/section"
 import { Button } from "@/components/ui/button"
@@ -12,19 +11,21 @@ import Stats from "./components/stats"
 import ExperienceList from "./components/experience/experence-list"
 import BlogComponent from "./components/blogs/blog-list"
 import ContactPage from "./contact/page"
-import { ProjectList } from "./projects/page"
 import {SocialLinks} from "./components/social-link/social-link"
 import { useAppData } from "@/lib/app-data-context"
+import { ProjectList } from "./components/projects/project-list"
 
 // -------------------- Sections --------------------
 
 export function ProjectsSection() {
-  const { projects } = useAppData()
-  if (projects.length === 0) return null
+  const { projectsData } = useAppData()
+  if (projectsData.projects.length === 0) return null
   return (
     <Section id="projects">
       <Header title="Projects" subtitle="Selected work" />
-      <ProjectList projects={projects} />
+      <ProjectList projects={
+        projectsData.projects.length > 6 ? projectsData.projects.slice(0, 6) : projectsData.projects
+      } />
       <div className="mt-6">
         <Link
           href="/projects"
@@ -39,19 +40,27 @@ export function ProjectsSection() {
 
 export function BlogsSection() {
   return (
-    <Section id="blogs">
+    <Section id="articles">
       <BlogComponent fromHome />
     </Section>
   )
 }
 
 export function ExperienceSection() {
-  const { experience } = useAppData()
-  if (experience.length === 0) return null
+  const { expData } = useAppData()
+  if (expData.experiences.length === 0) return null
   return (
     <Section id="experience">
       <Header title="Experience" subtitle="Timeline" />
-      <ExperienceList experience={experience} />
+      <ExperienceList experience={expData.experiences.length > 3 ? expData.experiences.slice(0, 3) : expData.experiences} />
+      <div className="mt-6">  
+        <Link
+          href="/experience"
+          className="inline-flex h-10 items-center rounded-md border px-4"
+        >
+          Show all experience
+        </Link>
+      </div>
     </Section>
   )
 }

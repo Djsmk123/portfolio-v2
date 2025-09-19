@@ -2,14 +2,17 @@ import { projectType } from "@/app/data/mock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { ExternalLinkIcon, GithubIcon, ZoomInIcon } from "lucide-react";
+import { ExternalLinkIcon, GithubIcon, ZoomInIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { memo, useState } from "react";
 import ProjectBanner from "./project-banner";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const onCardClickCapture: React.MouseEventHandler = (e) => {
     const target = e.target as HTMLElement;
@@ -30,7 +33,7 @@ const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
       aria-label={`Open ${p.name} gallery`}
     >
       {/* Banner */}
-      <div className="relative">
+      <div className="relative" onClick={() => { if (p.images?.length) { setCurrentImageIndex(0); setShowGallery(true) } }}>
         <ProjectBanner images={p.images} name={p.name} />
 
         {/* Zoom hint */}
@@ -42,12 +45,80 @@ const ProjectCard = memo(function ProjectCard({ p }: { p: projectType }) {
         </div>
       </div>
 
+      {/* Lightbox Gallery */}
+      {p.images?.length ? (
+        <Dialog open={showGallery} onOpenChange={setShowGallery}>
+          <DialogContent 
+            className="w-full max-w-5xl border-0 bg-background/95 p-0 sm:p-3"
+            showCloseButton={false}
+            // Responsive height for dialog content
+            style={{
+              height: "80vh",
+              maxHeight: "90vh",
+            }}
+          >
+            <DialogTitle className="sr-only">{p.name} gallery</DialogTitle>
+            <div
+              className="
+                relative w-full
+                aspect-video
+                bg-black/60 rounded-md overflow-hidden
+                sm:aspect-video
+                h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh]
+                max-h-[90vh]
+              "
+              style={{
+                height: "50vh",
+                maxHeight: "90vh",
+              }}
+            >
+              <Image
+                src={p.images[currentImageIndex]}
+                alt={`${p.name} image ${currentImageIndex + 1}`}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+              {p.images.length > 1 && (
+                <>
+                  <button
+                    aria-label="Previous image"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 text-white p-2 hover:bg-black/80"
+                    onClick={() => setCurrentImageIndex((i) => (i - 1 + p.images.length) % p.images.length)}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    aria-label="Next image"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 text-white p-2 hover:bg-black/80"
+                    onClick={() => setCurrentImageIndex((i) => (i + 1) % p.images.length)}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-white/80">
+                    {currentImageIndex + 1} / {p.images.length}
+                  </div>
+                </>
+              )}
+              <button
+                aria-label="Close gallery"
+                className="absolute right-2 top-2 rounded-full bg-black/60 text-white p-2 hover:bg-black/80"
+                onClick={() => setShowGallery(false)}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ) : null}
+
       {/* Header */}
       <CardHeader className="space-y-2">
         <h3 className="text-xl font-semibold tracking-tight group-hover:text-primary transition-colors">
           {p.name}
         </h3>
-        {p.org && (
+        {p.org && p.org.name && p.org.logo && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Image
               src={p.org.logo}

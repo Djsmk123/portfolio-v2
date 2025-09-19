@@ -70,18 +70,29 @@ export async function fetchSkills(): Promise<skillType[]> {
 
 //fetch projects
 
+
 type ProjectResponse = {
   projects: []
   total: number
 }
 
-export async function fetchProjects(): Promise<projectType[]> {
-  const res = await clientFetch<ProjectResponse>('/api/public/projects')
-  var projects: projectType[] = []
+type PaginationParams = {
+  page?: number
+  limit?: number
+}
+
+
+
+export async function fetchProjects(pagination?: PaginationParams): Promise<{ projects: projectType[], total: number }> {
+  const res = await clientFetch<ProjectResponse>('/api/public/projects', pagination)
+  const projects: projectType[] = []
   for (const project of res.projects) {
     projects.push(fromDbProjects(project))
   }
-  return projects
+  return {
+    projects,
+    total: res.total
+  }
 }
 
 //fetch experience
@@ -91,14 +102,16 @@ type ExperienceResponse = {
   total: number
 }
 
-
-export async function fetchExperience(): Promise<experienceType[]> {
-    const res = await clientFetch<ExperienceResponse>('/api/public/experience')
-    var experiences: experienceType[] = []
-    for (const experience of res.experiences) {
-      experiences.push(fromDbExperience(experience))
-    }
-    return experiences
+export async function fetchExperience(pagination?: PaginationParams): Promise<{ experiences: experienceType[], total: number }> {
+  const res = await clientFetch<ExperienceResponse>('/api/public/experience', pagination)
+  const experiences: experienceType[] = []
+  for (const experience of res.experiences) {
+    experiences.push(fromDbExperience(experience))
+  }
+  return {
+    experiences,
+    total: res.total
+  }
 }
 
 //fetch blogs
