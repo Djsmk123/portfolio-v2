@@ -50,7 +50,7 @@ export async function getServerSession(request: NextRequest): Promise<AuthRespon
           id: user.id,
           email: user.email || '',
           created_at: user.created_at,
-          updated_at: user.updated_at
+          updated_at: user.updated_at || ''
         },
         session: {
           access_token: accessToken,
@@ -75,10 +75,10 @@ export async function getServerSession(request: NextRequest): Promise<AuthRespon
 
     return {
       user: {
-        id: refreshedUser.id,
-        email: refreshedUser.email || '',
-        created_at: refreshedUser.created_at,
-        updated_at: refreshedUser.updated_at
+        id: refreshedUser?.id || '',
+        email: refreshedUser?.email || '',
+        created_at: refreshedUser?.created_at || '',
+        updated_at: refreshedUser?.updated_at || ''
       },
       session: {
         access_token: session.access_token,
