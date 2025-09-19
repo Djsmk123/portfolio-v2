@@ -1,12 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
-import { config } from "./config";
+import { serverConfig,publicConfig } from "./config";
 
-const supabaseUrl = config.supbaseUrl! 
-const supabaseAnonKey = config.supbaseAnonKey!
+const supabaseUrl = serverConfig.supabaseUrl! 
+const supabaseAnonKey = serverConfig.supabaseAnonKey!
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 type TableName<T extends string> = T extends `${infer Name}`
-  ? (typeof config.isDev extends true ? `dev_${Name}` : Name)
+  ? (typeof publicConfig.isDev extends true ? `dev_${Name}` : Name)
   : never;
 
 export interface Database {
@@ -209,5 +209,5 @@ interface BaseTables {
 }
 
 export const getTableName = <T extends keyof BaseTables & string> (name: T): string => {
-  return (config.isDev ? `dev_${name}` : name)
+  return (publicConfig.isDev ? `dev_${name}` : name)
 }

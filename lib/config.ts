@@ -1,24 +1,29 @@
 enum Environment {
-    DEVELOPMENT = 'development',
-    PRODUCTION = 'production',
-    TEST = 'test',
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+  TEST = 'test',
 }
 
-export const config = {
-    supbaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    supbaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    isDev: process.env.NODE_ENV === Environment.DEVELOPMENT,
-    isTest: process.env.NODE_ENV === Environment.TEST,
-    isProd: process.env.NODE_ENV === Environment.PRODUCTION,
-    bucket: process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'portfolio',
-    githubUsername: process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'djsmk123',
-    devToUsername: process.env.NEXT_PUBLIC_DEV_TO_USERNAME || 'djsmk123',
-    githubToken: process.env.NEXT_PUBLIC_GITHUB_TOKEN || '',
+const isServer = typeof window === 'undefined'
+
+// Public runtime config (safe to expose in the browser)
+export const publicConfig = {
+  githubUsername: process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'djsmk123',
+  devToUsername: process.env.NEXT_PUBLIC_DEV_TO_USERNAME || 'djsmk123',
+  isDev: process.env.NODE_ENV === Environment.DEVELOPMENT,
+  isTest: process.env.NODE_ENV === Environment.TEST,
+  isProd: process.env.NODE_ENV === Environment.PRODUCTION,
 }
 
-if (!config.supbaseUrl || !config.supbaseAnonKey) { 
-    // Avoid crashing the browser; only exit on the server side
-    if (typeof window === 'undefined') {
-        process.exit(1)
-    }
+// Server-only config (MUST NOT use NEXT_PUBLIC_)
+export const serverConfig = {
+  githubToken: process.env.GITHUB_TOKEN || '',
+  bucket: process.env.SUPABASE_BUCKET || 'portfolio',
+  supabaseUrl: process.env.SUPABASE_URL || '',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
+}
+
+// Validate required public env only at build/runtime on the server
+if (isServer && (!serverConfig.supabaseUrl || !serverConfig.supabaseAnonKey)) {
+  process.exit(1)
 }

@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server'
 import { withApiMiddleware } from '@/lib/api-middleware'
 import { supabase } from '@/lib/supabase'
 import { z } from 'zod'
-import { config } from '@/lib/config'
+import { serverConfig } from '@/lib/config'
 
-const BUCKET = config.bucket
+
+const BUCKET = serverConfig.bucket
 
 export const GET = withApiMiddleware(async ({ req }) => {
   const { searchParams } = new URL(req.url)
