@@ -72,9 +72,9 @@ export function AdminProjectCard({
     if (!images.length) return null
 
     return (
-      <div className="relative group">
+      <div className="relative group h-40 w-full mb-4">
         <div
-          className="relative aspect-video rounded-lg overflow-hidden bg-muted cursor-zoom-in"
+          className="relative aspect-video rounded-lg overflow-hidden bg-muted cursor-zoom-in h-40"
           onClick={() => setShowImageDialog(true)}
           role="button"
           aria-label="Open image gallery"

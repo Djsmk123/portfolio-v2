@@ -1,11 +1,13 @@
 import { RateLimitOptions, withRateLimit } from 'next-limitr'
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession, AuthResponse } from './auth-server'
 
 export type ApiHandler<TJson = unknown> = (ctx: {
   req: Request
   json: <T = TJson>() => Promise<T>
   headers: Headers
   ip: string
+  session?: AuthResponse | null
 }) => Promise<NextResponse>
 
 function getClientIp (req: NextRequest | Request): string {
@@ -25,12 +27,15 @@ export function withApiMiddleware<TJson = unknown> (
 ) {
   return async function wrapped (req: NextRequest) {
     try {
+      const session = await getServerSession(req)
+      
       const inner = async (incomingReq: Request) => {
         return handler({
           req: incomingReq,
           json: async () => await incomingReq.json().catch(() => ({} as TJson)),
           headers: new Headers(incomingReq.headers),
-          ip: getClientIp(incomingReq)
+          ip: getClientIp(incomingReq),
+          session
         })
       }
 

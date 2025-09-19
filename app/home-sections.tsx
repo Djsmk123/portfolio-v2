@@ -9,11 +9,11 @@ import { ThemeContext } from "./providers"
 import BlurText from "@/components/ui/shadcn-io/blur-text"
 import Stats from "./components/stats"
 import ExperienceList from "./components/experience/experence-list"
-import BlogComponent from "./components/blogs/blog-list"
 import ContactPage from "./contact/page"
 import {SocialLinks} from "./components/social-link/social-link"
 import { useAppData } from "@/lib/app-data-context"
 import { ProjectList } from "./components/projects/project-list"
+import { BlogList } from "./components/blogs/blog-list"
 
 // -------------------- Sections --------------------
 
@@ -39,10 +39,22 @@ export function ProjectsSection() {
 }
 
 export function BlogsSection() {
+  const { blogs } = useAppData()
+  if (blogs.length === 0) return null
+  
   return (
-    <Section id="articles">
-      <BlogComponent fromHome />
-    </Section>
+    (
+      <Section id="articles">
+        <div className="space-y-2">
+          <LargeTitle>Articles</LargeTitle>
+          <SmallTitle>What I&apos;ve been writing</SmallTitle>
+          <BlogList posts={blogs.slice(0, 3)} />
+        </div>
+        <div className="mt-6">
+          <Link href="/blogs" className="inline-flex h-10 items-center rounded-md border px-4">Show all articles</Link>
+        </div>
+      </Section>
+    )
   )
 }
 

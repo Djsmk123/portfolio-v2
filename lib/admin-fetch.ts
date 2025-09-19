@@ -1,4 +1,5 @@
-import { getAdminUser } from './localstorage'
+import { ensureValidToken } from './localstorage'
+import { AuthService } from './auth-client'
 
 type FetchOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
@@ -20,8 +21,20 @@ function buildUrl (url: string, params?: FetchOptions['params']): string {
   return qs ? `${url}?${qs}` : url
 }
 
+async function getValidToken(): Promise<string | null> {
+  // First try to get token from AuthService
+  const authService = AuthService.getInstance()
+  let token = authService.getAccessToken()
+  
+  if (!token) {
+    // Fallback to localStorage and ensure it's valid
+    token = await ensureValidToken()
+  }
+
+  return token
+}
+
 export async function adminFetch<T> (url: string, opts: FetchOptions = {}): Promise<T> {
-  const token = getAdminUser()?.access_token
   const method = opts.method || 'GET'
   const fullUrl = buildUrl(url, opts.params)
   const cacheKey = method === 'GET' ? fullUrl : ''
@@ -31,14 +44,17 @@ export async function adminFetch<T> (url: string, opts: FetchOptions = {}): Prom
   const signal = opts.signal || controller.signal
   const retries = Math.max(opts.retries ?? 2, 0)
 
-  const headers: Record<string, string> = {}
-  if (token) headers.Authorization = `Bearer ${token}`
-  if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
-
   let attempt = 0
   let lastErr: unknown
+  
   while (attempt <= retries) {
     try {
+      const token = await getValidToken()
+      
+      const headers: Record<string, string> = {}
+      if (token) headers.Authorization = `Bearer ${token}`
+      if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
+
       const res = await fetch(fullUrl, {
         method,
         credentials: 'include',
@@ -46,6 +62,17 @@ export async function adminFetch<T> (url: string, opts: FetchOptions = {}): Prom
         body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
         signal
       })
+      
+      if (res.status === 401 && attempt < retries) {
+        // Token might be invalid, try to refresh
+        const authService = AuthService.getInstance()
+        const refreshed = await authService.refreshToken()
+        if (refreshed) {
+          attempt++
+          continue
+        }
+      }
+      
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       if (cacheKey) cache.set(cacheKey, data)
