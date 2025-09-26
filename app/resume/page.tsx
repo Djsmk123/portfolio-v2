@@ -50,14 +50,6 @@ export default async function Page() {
         )
 
       }
-    }else{
-      return (
-        <ErrorState
-          status={res.status}
-          statusText={res.statusText}
-          message= "Invalid server response."
-        />
-      )
     }
 
     let data
