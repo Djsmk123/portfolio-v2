@@ -21,6 +21,7 @@ export const publicConfig = {
   isDev: nodeEnv === Environment.DEVELOPMENT,
   isTest: nodeEnv === Environment.TEST,
   isProd: nodeEnv === Environment.PRODUCTION,
+  appUrl: process.env.NEXT_PUBLIC_APP_URL || '',
 }
 
 // Server-only config (MUST NOT use NEXT_PUBLIC_)

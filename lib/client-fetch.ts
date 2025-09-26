@@ -11,6 +11,9 @@ type QueryParameters = {
   [key: string]: string | number | boolean | undefined
 }
 
+//is dev 
+const isDev = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'
+
 export async function clientFetch<T>(url: string, queryParameters?: QueryParameters): Promise<T> {
   let queryString = ''
   if (queryParameters) {
@@ -25,9 +28,11 @@ export async function clientFetch<T>(url: string, queryParameters?: QueryParamet
   const fullUrl = `${url}${queryString}`
   
   try {
+    const enableCache = isDev ? 'no-store' : 'force-cache'
+    const revalidate = isDev ? 0 : 3600
     const res = await fetch(fullUrl, {
-    //  cache: 'force-cache',
-      next: { revalidate: 3600 } // Revalidate every hour
+      cache: enableCache,
+      next: { revalidate: revalidate } // Revalidate every hour
     })
     
     if (!res.ok) {

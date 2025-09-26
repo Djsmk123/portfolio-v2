@@ -35,6 +35,10 @@ export class AuthService {
 
   private async initializeAuth() {
     try {
+      const isBrowser = typeof window !== 'undefined'
+      const pathname = isBrowser ? window.location.pathname : ''
+      const isAdminRoute = pathname.startsWith('/admin')
+
       // First, try to get session from localStorage as fallback
       const existingSession = this.getStoredSession()
       if (existingSession) {
@@ -43,12 +47,18 @@ export class AuthService {
           session: existingSession.session,
           loading: false
         })
+        // Validate only on admin routes to ensure privileged actions
+        if (!isAdminRoute) return
+      } else {
+        // If there is no stored session and we're not on an admin route, stop here
+        if (!isAdminRoute) {
+          this.updateState({ user: null, session: null, loading: false })
+          return
+        }
       }
 
-      // Then try to validate with server
-      const response = await this.makeRequest('/api/auth/me', {
-        method: 'GET'
-      })
+      // Admin route: validate with server using cookies if present
+      const response = await this.makeRequest('/api/auth/me', { method: 'GET' })
 
       if (response.ok) {
         const data = await response.json()
@@ -57,16 +67,10 @@ export class AuthService {
           session: data.session,
           loading: false
         })
-        // Store the validated session
         this.storeSession(data.user, data.session)
       } else {
-        // Server validation failed, clear stored session
         this.clearStoredSession()
-        this.updateState({
-          user: null,
-          session: null,
-          loading: false
-        })
+        this.updateState({ user: null, session: null, loading: false })
       }
     } catch (error) {
       console.error('Auth initialization error:', error)
@@ -95,7 +99,6 @@ export class AuthService {
 
   private async makeRequest(url: string, options: RequestInit = {}): Promise<Response> {
     const baseUrl = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_APP_URL || ''
-    
     return fetch(`${baseUrl}${url}`, {
       ...options,
       credentials: 'include',
