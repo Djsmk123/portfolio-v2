@@ -1,17 +1,27 @@
+"use client"
+
 import { useSpeachSynthesisApi } from '@/app/hooks/useSpeechSynthesis'
 import { useEffect, useMemo, useState } from 'react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
-export function ThoughtCard({ quote, author }: { quote: string, author: string }) {
+export function ThoughtCard({
+  quote,
+  author,
+  url
+}: {
+  quote: string
+  author: string
+  url: string
+}) {
   const words = useMemo(() => quote.split(' '), [quote])
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [bars, setBars] = useState<number[]>(() => new Array(24).fill(4))
-
   const displayed = words.slice(0, currentWordIndex).join(' ')
 
   const { setText: setTtsText, speak, pause, cancel } = useSpeachSynthesisApi()
 
-  // Reset when quote changes
   useEffect(() => {
     setIsPlaying(false)
     setCurrentWordIndex(0)
@@ -20,7 +30,6 @@ export function ThoughtCard({ quote, author }: { quote: string, author: string }
     cancel()
   }, [quote, setTtsText, cancel])
 
-  // Word-by-word playback
   useEffect(() => {
     if (!isPlaying || currentWordIndex >= words.length) return
     const id = setInterval(() => {
@@ -29,14 +38,11 @@ export function ThoughtCard({ quote, author }: { quote: string, author: string }
     return () => clearInterval(id)
   }, [isPlaying, currentWordIndex, words.length])
 
-  // Reactive waveform
   useEffect(() => {
     const id = setInterval(() => {
       setBars(prev =>
         prev.map(() => {
-          if (isPlaying) {
-            return Math.floor(6 + Math.random() * 28)
-          }
+          if (isPlaying) return Math.floor(6 + Math.random() * 28)
           return Math.max(4, Math.floor(0.7 * (6 + Math.random() * 8)))
         })
       )
@@ -45,43 +51,46 @@ export function ThoughtCard({ quote, author }: { quote: string, author: string }
   }, [isPlaying])
 
   return (
-    <div className='group rounded-2xl border bg-background/50 backdrop-blur p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:border-primary/40'>
-      <div className='mb-4 flex items-center justify-between gap-4'>
+    <Link
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block group rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow cursor-pointer"
+    >
+      <div className="flex items-center justify-between mb-4">
         <PlayPauseButton
           isPlaying={isPlaying}
-          onClick={() => {
-            if (!isPlaying && currentWordIndex >= words.length) {
-              setCurrentWordIndex(0)
-            }
+          onClick={(e) => {
+            e.preventDefault() // stop link navigation when clicking play/pause
+            if (!isPlaying && currentWordIndex >= words.length) setCurrentWordIndex(0)
             const next = !isPlaying
             setIsPlaying(next)
-            if (next) {
-              speak()
-            } else {
-              pause()
-            }
-            if ('vibrate' in navigator) {
-              navigator.vibrate(30)
-            }
+            if (next) speak()
+            else pause()
+            if ('vibrate' in navigator) navigator.vibrate(30)
           }}
         />
-
         <Waveform bars={bars} isPlaying={isPlaying} />
       </div>
 
-      <div className='flex items-start gap-4'>
-        <QuoteIcon />
-        <div className='space-y-2'>
-          <p className='text-lg md:text-xl leading-relaxed'>
+      <div className="flex items-start gap-4">
+        <QuoteIcon username={author} />
+        <div className="space-y-2">
+          <p className="text-base leading-relaxed text-foreground">
             {currentWordIndex === 0 && !isPlaying ? quote : displayed}
             {isPlaying && currentWordIndex < words.length && (
-              <span className='inline-block w-2 h-4 bg-primary/60 ml-1 animate-pulse' />
+              <span className="inline-block w-2 h-4 bg-orange-500 ml-1 animate-pulse" />
             )}
           </p>
-          <p className='text-muted-foreground'>{author}</p>
+
+          <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
+            {author && (
+              <span className="text-gray-500">/u/{author}</span>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -90,48 +99,54 @@ function PlayPauseButton({
   onClick
 }: {
   isPlaying: boolean
-  onClick: () => void
+  onClick: (e: React.MouseEvent) => void
 }) {
   return (
-    <button
+    <Button
+      size="sm"
+      variant="outline"
+      className="flex items-center gap-2 px-4"
       onClick={onClick}
-      className='h-9 px-4 rounded-md border bg-background/80 hover:bg-background transition-colors flex items-center gap-2 text-sm font-medium'
     >
       {isPlaying ? (
         <>
-          <span className='text-lg'>⏸</span> Pause
+          <span>⏸</span> Pause
         </>
       ) : (
         <>
-          <span className='text-lg'>▶</span> Play
+          <span>▶</span> Play
         </>
       )}
-    </button>
+    </Button>
   )
 }
 
-function Waveform({ bars, isPlaying }: { bars: number[], isPlaying: boolean }) {
+function Waveform({ bars, isPlaying }: { bars: number[]; isPlaying: boolean }) {
   return (
-    <div className='flex items-end gap-[3px] h-8' aria-hidden>
+    <div className="flex items-end gap-[2px] h-6" aria-hidden>
       {bars.map((h, i) => (
         <span
           key={i}
-          className='w-[3px] rounded-full bg-primary/70 transition-[height,opacity] duration-200'
-          style={{ height: `${h}px`, opacity: isPlaying ? 1 : 0.6 }}
+          className="w-[3px] rounded-full bg-orange-500 transition-[height,opacity] duration-200"
+          style={{ height: `${h}px`, opacity: isPlaying ? 1 : 0.5 }}
         />
       ))}
     </div>
   )
 }
 
-function QuoteIcon() {
+function QuoteIcon({
+  username
+}: {
+  username?: string
+}) {
+  const letter = username ? username[0].toUpperCase() : '?'
   return (
-    <div className='relative'>
-      <div className='size-10 md:size-12 rounded-full bg-primary/10 grid place-items-center text-primary'>
-        <span className='text-2xl md:text-3xl group-hover:rotate-6'>“</span>
+    <div className="relative flex-shrink-0">
+      <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold text-lg">
+        {letter}
       </div>
-      <div className='absolute inset-0 animate-ping rounded-full bg-primary/10' />
+      <div className="absolute inset-0 rounded-full bg-orange-100 animate-ping" />
     </div>
   )
 }
-

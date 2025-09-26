@@ -5,7 +5,7 @@ import { LargeTitle, SmallTitle } from "../components/section";
 import { ProjectList } from "../components/projects/project-list";
 import { Pagination } from "@/components/ui/pagination";
 import { fetchProjects } from "@/lib/client-fetch";
-import { projectType } from "../data/mock";
+import { projectType } from "../data/type";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<projectType[]>([]);

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getAdminUser } from '@/lib/localstorage'
-import type { projectType } from '@/app/data/mock'
+import type { projectType } from '@/app/data/type'
 import { fromDb, toDb } from '@/app/admin/components/projects/utils'
 
 export function useProjects () {

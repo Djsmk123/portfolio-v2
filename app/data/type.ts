@@ -1,4 +1,3 @@
-import { experienceType, postType, projectType, skillType } from "./mock";
 
 export type adminUserType = {
     access_token: string;
@@ -25,6 +24,8 @@ export type profileStatsType = {
 export type thoughtOfTheDayType = {
     quote: string;
     author: string;
+    url: string;
+    authorImageUrl: string | null;
 }
 
 //home page data
@@ -37,70 +38,75 @@ export type homePageDataType = {
     experience: experienceType[];
 }
 
-
-
-// export type profileStatsType = {
-//     experience: number;
-//     projects: number;
-//     articles: number;
-//     commits: number;
-//     views: number;
-// }
-
-// {
-//     label: "Projects",
-//     value: profileStats.totalProjects,
-//     icon: Code2,
-//     color: "text-blue-500",
-//     bgColor: "bg-blue-500/10",
-//     description: "Mobile & Web Apps",
-//   },
-//   {
-//     label: "Experience",
-//     value: `${profileStats.yearsOfExperience}+`,
-//     icon: Calendar,
-//     color: "text-green-500",
-//     bgColor: "bg-green-500/10",
-//     description: "Years in Tech",
-//   },
-//   {
-//     label: "Articles",
-//     value: profileStats.blogsWritten,
-//     icon: FileText,
-//     color: "text-purple-500",
-//     bgColor: "bg-purple-500/10",
-//     description: "Blog Posts",
-//   },
-//   {
-//     label: "Commits",
-//     value: profileStats.totalCommits.toLocaleString(),
-//     icon: GitCommit,
-//     color: "text-orange-500",
-//     bgColor: "bg-orange-500/10",
-//     description: "Git Contributions",
-//   },
-//   {
-//     label: "Views",
-//     value: `${(profileStats.websiteViews / 1000).toFixed(1)}K`,
-//     icon: Eye,
-//     color: "text-cyan-500",
-//     bgColor: "bg-cyan-500/10",
-//     description: "Website Visitors",
-//   },
-//   {
-//     label: "Stars",
-//     value: profileStats.githubStars,
-//     icon: Star,
-//     color: "text-yellow-500",
-//     bgColor: "bg-yellow-500/10",
-//     description: "GitHub Stars",
-//   },
-
-//   {
-//     label: "Lines of Code",
-//     value: `${(profileStats.linesOfCode / 1000).toFixed(0)}K`,
-//     icon: Terminal,
-//     color: "text-red-500",
-//     bgColor: "bg-red-500/10",
-//     description: "Code Written",
-//   },
+export type postType = {
+    title: string;
+    description: string;
+    date: string | Date | number;
+    slug: string;
+    tags: string[];
+    link: string;
+    image?: string;
+    featuredArticle?: boolean;
+    likes?: number;
+    featuredOnGoogleDevLibrary?: boolean;
+  };
+  
+  
+  
+  //types
+  
+  export type projectType = {
+    "id": string;
+    "name": string;
+    "desc": string;
+    "tags": string[];
+    "images": string[];
+    "links"?: {
+      "playstore": string;
+      "appstore": string;
+      "website": string;
+    },
+    "github"?: string;
+    "org"?: {
+      "name": string;
+      "logo": string;
+      "url": string;
+    };
+    "createdAt": string | Date | number;
+    "updatedAt": string | Date | number;
+    "isActive"?: boolean; 
+  }
+  
+  
+  
+  export enum ExperienceType {
+    FullTime = "Full-time",
+    Internship = "Internship",
+    Contract = "Contract",
+  }
+  
+  export type experienceType = {
+    "id": string;
+    "title": string;
+    "company": string;
+    "location": string;
+    "date": string;
+    "description": string;
+    "type": ExperienceType;
+    "isActive"?: boolean;
+    "createdAt": string | Date | number;
+    "updatedAt": string | Date | number;
+  }
+  
+  
+  
+  // Skill primitives
+  export type skillType = {
+    id: string
+    name: string
+    category: 'frontend' | 'backend' | 'mobile' | 'design' | 'cloud' | 'other'
+    level: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
+    yearsOfExperience: number
+    icon?: string
+    color?: string
+  }

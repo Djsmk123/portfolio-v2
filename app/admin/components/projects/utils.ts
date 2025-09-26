@@ -1,4 +1,4 @@
-import type { projectType } from '@/app/data/mock'
+import type { projectType } from '@/app/data/type'
 
 type ProjectRow = {
   id: string

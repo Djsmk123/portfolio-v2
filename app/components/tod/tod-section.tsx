@@ -43,7 +43,7 @@ export function ThoughtOfTheDay() {
   // When loaded, render the actual ThoughtCard
   return (
     <Section id="thought">
-      <ThoughtCard quote={thought.quote} author={thought.author} />
+      <ThoughtCard quote={thought.quote} author={thought.author} url={thought.url} />
     </Section>
   )
 }

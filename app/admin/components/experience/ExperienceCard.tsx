@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Edit, Trash2, Building, Calendar, MapPin } from 'lucide-react'
-import type { experienceType } from '@/app/data/mock'
+import type { experienceType } from '@/app/data/type'
 
 type Props = {
   exp: experienceType

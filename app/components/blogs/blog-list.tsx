@@ -2,7 +2,7 @@
 import { motion } from "framer-motion"
 import {  TooltipProvider } from "@/components/ui/tooltip"
 import { BlogCard } from "./blog-card";
-import { postType } from "@/app/data/mock";
+import { postType } from "@/app/data/type";
 export function BlogList({
   posts,
 }: {

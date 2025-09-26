@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getAdminUser } from '@/lib/localstorage'
-import type { experienceType } from '@/app/data/mock'
+import type { experienceType } from '@/app/data/type'
 import { fromDb, toDb } from './utils'
 
 export function useExperiences () {

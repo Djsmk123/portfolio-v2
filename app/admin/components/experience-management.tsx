@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { experienceType, ExperienceType } from "@/app/data/mock";
+import type { experienceType, ExperienceType } from "@/app/data/type";
 import { useExperiences } from "./experience/use-experiences";
 import { ExperienceCard } from "./experience/ExperienceCard";
 import EditExperienceModal from "./experience/EditExperienceModal";

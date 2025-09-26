@@ -1,12 +1,33 @@
-import { thoughtOfTheDayType } from "@/app/data/type"
-import { withApiMiddlewareWithoutAuth } from "@/lib/api-middleware"
-import { NextResponse } from "next/server"
+import { withApiMiddlewareWithoutAuth } from '@/lib/api-middleware'
+import { getTableName } from '@/lib/supabase'
+import { NextResponse } from 'next/server'
+import { supabase } from '@/lib/supabase'
 
+const table = getTableName('thought_of_the_day')
 
 export const GET = withApiMiddlewareWithoutAuth(async () => {
-   const thoughtOfTheDay : thoughtOfTheDayType = {
-    quote: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs"
-   }
-    return NextResponse.json(thoughtOfTheDay)
+  // get all active items from the table
+  const { data, error } = await supabase
+    .from(table)
+    .select('*')
+    .eq('is_active', true)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: 'No active thoughts found' }, { status: 404 })
+  }
+
+  // pick a random item from the array
+  const randomIndex = Math.floor(Math.random() * data.length)
+  const item = data[randomIndex]
+
+  return NextResponse.json({
+    quote: item.quote,
+    author: item.author,
+    url: item.url,
+    authorImageUrl: item.authorImageUrl,
+  })
 })

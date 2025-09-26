@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { LargeTitle, SmallTitle } from "../components/section"
 import { Pagination } from "@/components/ui/pagination"
 import { fetchExperience } from "@/lib/client-fetch"
-import { experienceType } from "../data/mock"
+import { experienceType } from "../data/type"
 import ExperienceList from "../components/experience/experence-list"
 
 export default function ExperiencePage() {

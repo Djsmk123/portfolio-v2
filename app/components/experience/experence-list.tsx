@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ExperienceCard } from "./experience-card";
-import { experienceType } from "@/app/data/mock";
+import { experienceType } from "@/app/data/type";
 import { Skeleton } from "@/components/ui/skeleton";
 
 //props

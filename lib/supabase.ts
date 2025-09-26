@@ -206,6 +206,39 @@ interface BaseTables {
       updated_at?: string;
     };
   };
+  
+  thought_of_the_day: {
+    Row: {
+      id: string;
+      quote: string;
+      author: string;
+      is_active : boolean;
+      created_at: string;
+      updated_at: string;
+      authorImageUrl?: string;
+      url?: string;
+    };
+    Insert: {
+      id?: string;
+      quote: string;
+      author: string;
+      is_active?: boolean;
+      created_at?: string;
+      updated_at?: string;
+      authorImageUrl?: string;
+      url?: string;
+    };
+    Update: {
+      id?: string;
+      quote?: string;
+      author?: string;
+      is_active?: boolean;
+      created_at?: string;
+      updated_at?: string;
+      authorImageUrl?: string;
+      url?: string;
+    };
+  };
 }
 
 export const getTableName = <T extends keyof BaseTables & string> (name: T): string => {

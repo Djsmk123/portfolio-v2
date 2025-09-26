@@ -1,4 +1,4 @@
-import { projectType } from "@/app/data/mock"
+import { projectType } from "@/app/data/type"
 import ProjectCard from "./project-card"
 import { Skeleton } from "@/components/ui/skeleton"
 

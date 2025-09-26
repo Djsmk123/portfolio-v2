@@ -3,7 +3,7 @@
 
 import { fromDb as fromDbProjects } from "@/app/admin/components/projects/utils"
 import { fromDb as fromDbExperience } from "@/app/admin/components/experience/utils"
-import { experienceType, postType, projectType, skillType } from "@/app/data/mock"
+import { experienceType, postType, projectType, skillType } from "@/app/data/type"
 import { profileStatsType, thoughtOfTheDayType } from "@/app/data/type"
 
 

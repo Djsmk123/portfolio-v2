@@ -1,4 +1,4 @@
-import { ExperienceType, experienceType } from "@/app/data/mock";
+import { ExperienceType, experienceType } from "@/app/data/type";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

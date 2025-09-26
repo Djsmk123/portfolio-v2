@@ -1,4 +1,4 @@
-import { postType } from '@/app/data/mock'
+import { postType } from '@/app/data/type'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { motion } from 'framer-motion'

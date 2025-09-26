@@ -96,3 +96,19 @@ CREATE INDEX IF NOT EXISTS dev_resumes_updated_at_idx ON public.dev_resumes (upd
 
 
 
+
+
+
+-- Thought of the Day table dev_thought_of_the_day
+CREATE TABLE IF NOT EXISTS public.dev_thought_of_the_day (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  quote TEXT NOT NULL,
+  author TEXT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  url TEXT NULL,
+  authorImageUrl TEXT  NULL
+);
+
+CREATE INDEX IF NOT EXISTS dev_thought_of_the_day_updated_at_idx ON public.dev_thought_of_the_day (updated_at DESC);

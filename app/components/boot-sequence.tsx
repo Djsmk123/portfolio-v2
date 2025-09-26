@@ -2,7 +2,7 @@
 import { fetchBlogs, fetchExperience, fetchProjects, fetchSkills, fetchStats, fetchThoughtOfTheDay } from "@/lib/client-fetch"
 import { useEffect, useState, useRef } from "react"
 import { AppDataProvider } from "@/lib/app-data-context"
-import type { experienceType, postType, projectType, skillType } from "@/app/data/mock"
+import type { experienceType, postType, projectType, skillType } from "@/app/data/type"
 import type { profileStatsType, thoughtOfTheDayType } from "@/app/data/type"
 
 // Global cache to persist data across route changes

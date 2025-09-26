@@ -3,7 +3,7 @@
 import { fetchBlogs } from "@/lib/client-fetch";
 import { useState, useEffect } from "react";
 import { LargeTitle, SmallTitle } from "../components/section";
-import { postType } from "../data/mock";
+import { postType } from "../data/type";
 import { BlogList } from "../components/blogs/blog-list";
 
 export default function BlogsPage() {

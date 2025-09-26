@@ -32,6 +32,14 @@ export const serverConfig = {
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || '',
 }
 
+//open ai config 
+export const openAiConfig = {
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+  //baseURL
+  openaiBaseUrl: process.env.OPENAI_BASE_URL || '',
+}
+
 // Validate required public env only at build/runtime on the server
 if (isServer && (!serverConfig.supabaseUrl || !serverConfig.supabaseAnonKey)) {
   process.exit(1)

@@ -151,8 +151,6 @@ function HeroVideo() {
   )
 }
 
-// -------------------- Thought of the Day --------------------
-
  // -------------------- GitHub Stats --------------------
   
  export function GithubStats() {

@@ -4,7 +4,7 @@
   import { Button } from "@/components/ui/button";
   import { Input } from "@/components/ui/input";
   import { Search, Plus } from "lucide-react";
-  import type { projectType } from "@/app/data/mock";
+  import type { projectType } from "@/app/data/type";
   import { useProjects } from "./projects/use-projects";
   import { EditProjectModal } from "./projects/EditProjectModal";
   import { AdminProjectCard } from "./projects/ProjectCard";

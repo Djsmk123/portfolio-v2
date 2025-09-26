@@ -1,4 +1,4 @@
-import type { experienceType, ExperienceType } from '@/app/data/mock'
+import type { experienceType, ExperienceType } from '@/app/data/type'
 
 type ExperienceRow = {
   id: string

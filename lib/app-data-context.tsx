@@ -1,7 +1,7 @@
 // app/context/AppDataContext.tsx
 "use client"
 import { createContext, useContext } from "react"
-import { experienceType, postType, projectType, skillType } from "@/app/data/mock"
+import { experienceType, postType, projectType, skillType } from "@/app/data/type"
 import { profileStatsType } from "@/app/data/type"
 import { thoughtOfTheDayType } from "@/app/data/type"
 type AppData = {
