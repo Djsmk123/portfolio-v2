@@ -1,4 +1,5 @@
 import { withApiMiddlewareWithoutAuth } from '@/lib/api-middleware'
+export const runtime = 'nodejs'
 import { getTableName } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'

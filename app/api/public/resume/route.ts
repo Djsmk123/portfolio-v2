@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'  
+export const runtime = 'nodejs'
 import { withApiMiddlewareWithoutAuth } from '@/lib/api-middleware'
 import { supabase } from '@/lib/supabase'
 import { getTableName } from '@/lib/supabase'
@@ -11,7 +12,7 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
     .from(TABLE)
     .select('*')
     .eq('is_active', true)
-    .limit(1)
+    .limit(1) 
     .maybeSingle()
 
   if (activeError && activeError.message) {
