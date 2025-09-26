@@ -4,6 +4,7 @@ import { useSpeachSynthesisApi } from '@/app/hooks/useSpeechSynthesis'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export function ThoughtCard({
   quote,
@@ -17,7 +18,7 @@ export function ThoughtCard({
   const words = useMemo(() => quote.split(' '), [quote])
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
-  const [bars, setBars] = useState<number[]>(() => new Array(24).fill(4))
+  const [bars, setBars] = useState<number[]>(() => new Array(20).fill(4))
   const displayed = words.slice(0, currentWordIndex).join(' ')
 
   const { setText: setTtsText, speak, pause, cancel } = useSpeachSynthesisApi()
@@ -25,7 +26,7 @@ export function ThoughtCard({
   useEffect(() => {
     setIsPlaying(false)
     setCurrentWordIndex(0)
-    setBars(new Array(24).fill(4))
+    setBars(new Array(20).fill(4))
     setTtsText(quote)
     cancel()
   }, [quote, setTtsText, cancel])
@@ -41,54 +42,48 @@ export function ThoughtCard({
   useEffect(() => {
     const id = setInterval(() => {
       setBars(prev =>
-        prev.map(() => {
-          if (isPlaying) return Math.floor(6 + Math.random() * 28)
-          return Math.max(4, Math.floor(0.7 * (6 + Math.random() * 8)))
-        })
+        prev.map(() => (isPlaying ? Math.floor(8 + Math.random() * 20) : 4))
       )
-    }, isPlaying ? 120 : 300)
+    }, 140)
     return () => clearInterval(id)
   }, [isPlaying])
 
   return (
     <Link
       href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block group rounded-lg border border-border bg-card p-6 hover:shadow-lg transition-shadow cursor-pointer"
+      className={cn(
+        "block rounded-2xl border border-border bg-card p-5",
+        "transition-all hover:shadow-md hover:border-primary/30"
+      )}
     >
       <div className="flex items-center justify-between mb-4">
         <PlayPauseButton
           isPlaying={isPlaying}
           onClick={(e) => {
-            e.preventDefault() // stop link navigation when clicking play/pause
+            e.preventDefault()
             if (!isPlaying && currentWordIndex >= words.length) setCurrentWordIndex(0)
             const next = !isPlaying
             setIsPlaying(next)
             if (next) speak()
             else pause()
-            if ('vibrate' in navigator) navigator.vibrate(30)
+            if ('vibrate' in navigator) navigator.vibrate(25)
           }}
         />
         <Waveform bars={bars} isPlaying={isPlaying} />
       </div>
 
-      <div className="flex items-start gap-4">
-        <QuoteIcon username={author} />
-        <div className="space-y-2">
-          <p className="text-base leading-relaxed text-foreground">
-            {currentWordIndex === 0 && !isPlaying ? quote : displayed}
-            {isPlaying && currentWordIndex < words.length && (
-              <span className="inline-block w-2 h-4 bg-orange-500 ml-1 animate-pulse" />
-            )}
-          </p>
+      <p className="text-base leading-relaxed text-foreground mb-3">
+        {currentWordIndex === 0 && !isPlaying ? quote : displayed}
+        {isPlaying && currentWordIndex < words.length && (
+          <span className="inline-block w-1.5 h-4 bg-primary ml-1 animate-pulse rounded" />
+        )}
+      </p>
 
-          <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-sm">
-            {author && (
-              <span className="text-gray-500">/u/{author}</span>
-            )}
-          </div>
-        </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <QuoteIcon username={author} />
+        {author && (
+          <span className="truncate">/u/{author}</span>
+        )}
       </div>
     </Link>
   )
@@ -104,49 +99,35 @@ function PlayPauseButton({
   return (
     <Button
       size="sm"
-      variant="outline"
-      className="flex items-center gap-2 px-4"
+      variant="ghost"
+      className="flex items-center gap-2 rounded-full px-3"
       onClick={onClick}
     >
-      {isPlaying ? (
-        <>
-          <span>⏸</span> Pause
-        </>
-      ) : (
-        <>
-          <span>▶</span> Play
-        </>
-      )}
+      {isPlaying ? "⏸ Pause" : "▶ Play"}
     </Button>
   )
 }
 
 function Waveform({ bars, isPlaying }: { bars: number[]; isPlaying: boolean }) {
   return (
-    <div className="flex items-end gap-[2px] h-6" aria-hidden>
+    <div className="flex items-end gap-[2px] h-5" aria-hidden>
       {bars.map((h, i) => (
         <span
           key={i}
-          className="w-[3px] rounded-full bg-orange-500 transition-[height,opacity] duration-200"
-          style={{ height: `${h}px`, opacity: isPlaying ? 1 : 0.5 }}
+          className="w-[2px] rounded-full bg-primary/80 transition-all duration-200"
+          style={{ height: `${h}px`, opacity: isPlaying ? 1 : 0.4 }}
         />
       ))}
     </div>
   )
 }
 
-function QuoteIcon({
-  username
-}: {
-  username?: string
-}) {
+function QuoteIcon({ username }: { username?: string }) {
   const letter = username ? username[0].toUpperCase() : '?'
+
   return (
-    <div className="relative flex-shrink-0">
-      <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 font-bold text-lg">
-        {letter}
-      </div>
-      <div className="absolute inset-0 rounded-full bg-orange-100 animate-ping" />
+    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-medium">
+      {letter}
     </div>
   )
 }
