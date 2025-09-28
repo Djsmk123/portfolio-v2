@@ -7,6 +7,8 @@ import { ThemeContext } from "@/app/providers";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
+
 
 type NavTab = {
   label: string;
@@ -135,8 +137,9 @@ export function Navbar() {
     <header className="fixed top-4 left-1/2 z-50 -translate-x-1/2 w-full max-w-5xl px-4 md:px-0">
       <div className="flex items-center justify-between gap-4 rounded-full border bg-background/70 px-6 py-2 shadow-lg backdrop-blur-lg supports-[backdrop-filter]:bg-background/50">
         {/* Logo */}
-        <Link href="/" className="font-bold text-lg md:text-xl">
-          MD. Mobin
+        <Link href="/" className="font-bold text-lg md:text-xl flex items-center gap-2">
+          <Image src="/assets/app_icon.svg" alt="Logo" width={32} height={32} />
+          <span className="text-lg md:text-xl">Mobin</span>
         </Link>
 
         {/* Desktop Tabs */}

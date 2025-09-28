@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext } from "react"
+import { useContext, useState, useRef } from "react"
 import Link from "next/link"
 import GitHubCalendar from "react-github-calendar"
 import { Section, LargeTitle, SmallTitle } from "./components/section"
@@ -137,16 +137,123 @@ function HeroIntro() {
 }
 
 function HeroVideo() {
+  const [isMuted, setIsMuted] = useState(true)
+  const [showControls, setShowControls] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted
+      setIsMuted(videoRef.current.muted)
+    }
+  }
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play()
+        setIsPlaying(true)
+      } else {
+        videoRef.current.pause()
+        setIsPlaying(false)
+      }
+    }
+  }
+
+  const handleVideoClick = () => {
+    togglePlay()
+  }
+
+  const handleMouseEnter = () => {
+    setShowControls(true)
+  }
+
+  const handleMouseLeave = () => {
+    setShowControls(false)
+  }
+
   return (
-    <div className="aspect-video rounded-xl bg-gradient-to-br from-primary/20 to-muted">
+    <div 
+      className="aspect-video rounded-xl bg-gradient-to-br from-primary/20 to-muted relative group cursor-pointer overflow-hidden"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleVideoClick}
+    >
       <video
-        src="/assets/intro.mp4"
+        ref={videoRef}
+        src="https://hrarzkdrpxlsjvyxyvab.supabase.co/storage/v1/object/public/portfolioDev/qfrcwlkma1irgxh1t19d6feo_watermarked.mp4"
         autoPlay
         loop
-        muted
         playsInline
-        className="w-full h-full object-cover rounded-xl"
+        muted={isMuted}
+        className="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
       />
+      
+      {/* Video Controls Overlay */}
+      <div 
+        className={`absolute inset-0 bg-black/20 flex items-center justify-center transition-all duration-300 ${
+          showControls ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {/* Play/Pause Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            togglePlay()
+          }}
+          className="bg-white/90 hover:bg-white text-black rounded-full p-3 transition-all duration-200 hover:scale-110 shadow-lg"
+        >
+          {isPlaying ? (
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+            </svg>
+          ) : (
+            <svg className="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {/* Mute/Unmute Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          toggleMute()
+        }}
+        className={`absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-all duration-200 hover:scale-110 ${
+          showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
+        {isMuted ? (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+        ) : (
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        )}
+      </button>
+
+      {/* Play/Pause Indicator */}
+      <div 
+        className={`absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+          showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
+        {isPlaying ? 'Playing' : 'Paused'}
+      </div>
+
+      {/* Volume Indicator */}
+      <div 
+        className={`absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
+          showControls ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}
+      >
+        {isMuted ? 'Muted' : 'Unmuted'}
+      </div>
     </div>
   )
 }
