@@ -17,7 +17,7 @@ export default function ContactPage({
     // Simulate booking process
     setBooked(true);
     setTimeout(() => {
-      window.open("https://calendly.com/your-username", "_blank");
+      window.open("https://calendly.com/djsmk123/meet", "_blank");
     }, 1000);
   };
 
