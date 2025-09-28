@@ -29,7 +29,7 @@ const playfair = Playfair_Display({
   display: 'swap'
 })
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com').replace(/\/$/, '')
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://smkwinner.vercel.app').replace(/\/$/, '')
 const ogImageUrl = `${siteUrl}/assets/og-image.png`
 
 export const metadata: Metadata = {
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/assets/app_icon.svg', type: 'image/svg+xml' },
       { url: '/assets/app_icon.svg', sizes: '512x512', type: 'image/svg+xml' },
       { url: '/assets/app_icon.svg', sizes: '180x180', type: 'image/svg+xml' }
     ],
@@ -94,18 +94,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
         <link rel='preconnect' href='https://img.buymeacoffee.com' crossOrigin='anonymous' />
 
-        {/* Open Graph for Facebook, LinkedIn, Discord */}
-        <meta property='og:title' content={metaTitle} />
-        <meta property='og:description' content={metaDescription} />
-        <meta property='og:type' content='website' />
-        <meta property='og:url' content={siteUrl} />
-        <meta property='og:site_name' content='MD. Mobin' />
-        <meta property='og:locale' content='en_US' />
-        <meta property='og:image' content={ogImageUrl} />
-        <meta property='og:image:width' content='1200' />
-        <meta property='og:image:height' content='630' />
-        <meta property='og:image:alt' content='MD. Mobin Portfolio' />
-        <meta property='og:image:type' content='image/png' />
+         {/* Open Graph for Facebook, LinkedIn, Discord */}
+         <meta property='og:title' content={metaTitle} />
+         <meta property='og:description' content={metaDescription} />
+         <meta property='og:type' content='website' />
+         <meta property='og:url' content={siteUrl} />
+         <meta property='og:site_name' content='MD. Mobin' />
+         <meta property='og:locale' content='en_US' />
+         <meta property='og:image' content={ogImageUrl} />
+         <meta property='og:image:width' content='1200' />
+         <meta property='og:image:height' content='630' />
+         <meta property='og:image:alt' content='MD. Mobin Portfolio' />
+         <meta property='og:image:type' content='image/png' />
+         <meta property='og:logo' content={`${siteUrl}/assets/app_icon.svg`} />
 
         {/* Twitter Card */}
         <meta name='twitter:card' content='summary_large_image' />
