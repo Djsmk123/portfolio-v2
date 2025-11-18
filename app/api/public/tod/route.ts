@@ -32,3 +32,7 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
     authorImageUrl: item.authorImageUrl,
   })
 })
+
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})

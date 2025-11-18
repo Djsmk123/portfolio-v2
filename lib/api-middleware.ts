@@ -48,33 +48,50 @@ export function withApiMiddleware<TJson = unknown> (
   }
 }
 
+function addCorsHeaders (response: NextResponse): NextResponse {
+  response.headers.set('Access-Control-Allow-Origin', '*')
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  return response
+}
+
 export function withApiMiddlewareWithoutAuth<TJson = unknown> (
   handler: ApiHandler<TJson>,
   options?: RateLimitOptions
 ) {
   return async function wrapped (req: NextRequest) {
+    // Handle OPTIONS preflight request
+    if (req.method === 'OPTIONS') {
+      const response = new NextResponse(null, { status: 204 })
+      return addCorsHeaders(response)
+    }
+
     try {
       const headers = new Headers(req.headers)
       const ip = getClientIp(req)
       const json = async () => await req.json().catch(() => ({} as TJson))
 
       const inner = async (incomingReq: Request) => {
-        return handler({
+        const response = await handler({
           req: incomingReq,
           json: async () => await incomingReq.json().catch(() => ({} as TJson)),
           headers: new Headers(incomingReq.headers),
           ip: getClientIp(incomingReq)
         })
+        return addCorsHeaders(response)
       }
 
       if (options) {
         const execute = withRateLimit(options)(inner)
-        return await execute(req)
+        const response = await execute(req)
+        return addCorsHeaders(response)
       }
-      return await handler({ req, json, headers, ip })
+      const response = await handler({ req, json, headers, ip })
+      return addCorsHeaders(response)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Internal Server Error'
-      return NextResponse.json({ error: message }, { status: 500 })
+      const response = NextResponse.json({ error: message }, { status: 500 })
+      return addCorsHeaders(response)
     }
   }
 }

@@ -40,3 +40,7 @@ export const GET = withApiMiddlewareWithoutAuth(async ({req}) => {
       total: count ?? 0
     })
 })
+
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})

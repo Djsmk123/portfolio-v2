@@ -36,3 +36,7 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
 
   return NextResponse.json({ resume: latestResume ?? null })
 })
+
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})

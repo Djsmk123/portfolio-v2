@@ -8,3 +8,7 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
   return NextResponse.json({ message: 'Hello, world!' })
 })
 
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})
+

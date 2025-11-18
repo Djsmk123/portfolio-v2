@@ -68,3 +68,7 @@ export const GET = withApiMiddlewareWithoutAuth(async () => {
   }
 })
 
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})
+

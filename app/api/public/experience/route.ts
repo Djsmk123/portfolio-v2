@@ -33,3 +33,7 @@ export const GET = withApiMiddlewareWithoutAuth(async ({req}) => {
   const mappedData = data.map(fromDb)
   return NextResponse.json({ experiences: mappedData, total: count ?? 0})
 })
+
+export const OPTIONS = withApiMiddlewareWithoutAuth(async () => {
+  return new NextResponse(null, { status: 204 })
+})
