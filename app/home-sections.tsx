@@ -17,6 +17,8 @@ import { BlogList } from "./components/blogs/blog-list"
 
 // -------------------- Sections --------------------
 
+const heroVideoUrl = process.env.NEXT_PUBLIC_HERO_VIDEO_URL || ""
+
 export function ProjectsSection() {
   const { projectsData } = useAppData()
   if (projectsData.projects.length === 0) return null
@@ -182,7 +184,7 @@ function HeroVideo() {
     >
       <video
         ref={videoRef}
-        src="https://hrarzkdrpxlsjvyxyvab.supabase.co/storage/v1/object/public/portfolioDev/qfrcwlkma1irgxh1t19d6feo_watermarked.mp4"
+        src={heroVideoUrl}
         autoPlay
         loop
         playsInline
